@@ -1,11 +1,10 @@
 package org.tim.qmorph.viewer;
 
-
 import java.awt.CheckboxMenuItem;
 import java.awt.Color;
 import java.awt.FileDialog;
 import java.awt.Font;
-import java.awt.Frame;
+import javax.swing.JFrame;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
@@ -18,6 +17,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -39,31 +41,22 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
     /** Create frame, set font */
     public GUI() {
-        f = new Frame("MeshDitor");
-        // Font font= new Font("SansSerif", Font.PLAIN, 12);
-        // f.setFont(font);
+        f = new JFrame("网格编辑器");
         f.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        f.setIconImage(null); // MyIconImage.makeIconImage()
+        f.setIconImage(null);
         GeomBasics.createNewLists();
     }
 
     /** Create frame, set font, instantiate QMorph */
     public GUI(String dir, String filename) {
-        f = new Frame("MeshDitor: " + filename);
-        // Font font= new Font("SansSerif", Font.PLAIN, 12);
-        // f.setFont(font);
-        f.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        f.setIconImage(null); // MyIconImage.makeIconImage()
+        f = new JFrame("网格编辑器: " + filename);
+        f.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        f.setIconImage(null);
 
         this.filename = filename;
-        // Parameters params= new Parameters(filename, false, false);
         GeomBasics.setParams(filename, dir, false, false);
-        // qm= new QuadMorph(params);
-
         GeomBasics.loadMesh();
         GeomBasics.findExtremeNodes();
-        // edgeList= GeomBasics.getEdgeList();
-        // nodeList= GeomBasics.getNodeList();
     }
 
     /** The filename of the current mesh. */
@@ -84,9 +77,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     /** Pointer to an instance of the DelaunayMeshGen class. */
     public DelaunayMeshGen tri = null;
 
-    Frame f;
+    JFrame f;
     private GCanvas cvas;
-    private GControls gctrls;
+    public GControls gctrls;
     private ScrollPane sp;
     private MenuBar mb;
 
@@ -96,11 +89,14 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     int scale = 100;
     MyMouseListener myMouseListener;
 
-    MenuItem newItem, loadMeshItem, loadNodesItem, saveItem, saveAsItem, saveNodesItem, saveNodesAsItem, saveTriAsItem, exportItem, exitItem;
+    MenuItem newItem, loadMeshItem, loadNodesItem, saveItem, saveAsItem, saveNodesItem, saveNodesAsItem, saveTriAsItem,
+            exportItem, exitItem;
     MenuItem undoItem, clearEdgesItem;
     CheckboxMenuItem nodeModeItem, triModeItem, quadModeItem, debugModeItem, stepModeItem;
-    MenuItem consistencyItem, detectInversionItem, printElementsItem, printTrianglesItem, reportMetricsItem, printValencesItem, printValPatItem,
-            printAngAtSurNodesItem, centroidItem, triCountItem, delauneyItem, qmorphItem, globalCleanUpItem, globalSmoothItem, helpItem, aboutItem;
+    MenuItem consistencyItem, detectInversionItem, printElementsItem, printTrianglesItem, reportMetricsItem,
+            printValencesItem, printValPatItem,
+            printAngAtSurNodesItem, centroidItem, triCountItem, delauneyItem, qmorphItem, globalCleanUpItem,
+            globalSmoothItem, helpItem, aboutItem;
 
     MenuShortcut qkey;
 
@@ -223,17 +219,11 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         runMenu = new Menu("Run");
         qmorphItem = new MenuItem("Run QMorph");
         delauneyItem = new MenuItem("Run Delauney generator");
-        // globalCleanUpItem= new MenuItem("Run topological cleanup");
-        // globalSmoothItem= new MenuItem("Run smooth");
         delauneyItem.addActionListener(this);
         qmorphItem.addActionListener(this);
-        // globalCleanUpItem.addActionListener(this);
-        // globalSmoothItem.addActionListener(this);
 
         runMenu.add(qmorphItem);
         runMenu.add(delauneyItem);
-        // runMenu.add(globalCleanUpItem);
-        // runMenu.add(globalSmoothItem);
 
         helpMenu = new Menu("Help");
         helpItem = new MenuItem("Help");
@@ -260,11 +250,22 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         if (GeomBasics.leftmost == null) {
             cvas = new GCanvas(this, scale);
         } else {
-            cvas = new GCanvas(this, GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y, scale);
+            cvas = new GCanvas(this, GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x,
+                    GeomBasics.uppermost.y, scale);
         }
 
         myMouseListener = new MyMouseListener();
         cvas.addMouseListener(myMouseListener);
+        cvas.addMouseMotionListener(myMouseListener); // 添加鼠标移动事件监听
+
+        // 添加窗口大小改变监听器
+        f.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                cvas.autoFit();
+            }
+        });
+
         cvas.repaint();
 
         f.add("South", gctrls = new GControls(this, cvas));
@@ -277,14 +278,46 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         cvas.setForeground(Color.black);
         cvas.setBackground(Color.black);
 
+        // Add mouse wheel listener for zoom
+        cvas.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                // Get the mouse wheel rotation
+                int rotation = e.getWheelRotation();
+
+                // Calculate new scale
+                if (rotation < 0) {
+                    // Zoom in - increase scale by 10%
+                    scale = (int) (scale * 1.1);
+                } else {
+                    // Zoom out - decrease scale by 10%
+                    scale = (int) (scale * 0.9);
+                }
+
+                // Ensure scale stays within reasonable bounds
+                if (scale < 10)
+                    scale = 10;
+                if (scale > 400)
+                    scale = 400;
+
+                // Update canvas with new scale
+                cvas.setScale(scale);
+
+                // Update scale percentage in combo box
+                int percentage = (int) ((scale / 100.0) * 100);
+                updateScale(percentage);
+            }
+        });
+
         f.setVisible(true);
     }
 
     void commandNew() {
         GeomBasics.clearLists();
         GeomBasics.setParams(null, ".", false, false);
-        f.setTitle("MeshDitor:");
-        cvas.resize(-2, -2, 2, 2, 100);
+        f.setTitle("网格编辑器:");
+        cvas.resize(-10, -10, 10, 10, 100);
+        cvas.autoFit();
         cvas.clear();
         qm = null;
     }
@@ -301,10 +334,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
             GeomBasics.setParams(loadName, dir, false, false);
             GeomBasics.loadMesh();
-            f.setTitle("MeshDitor: " + loadName);
+            f.setTitle("网格编辑器: " + loadName);
 
             GeomBasics.findExtremeNodes();
-            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y, scale);
+            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y,
+                    scale);
+            cvas.autoFit();
         }
     }
 
@@ -320,10 +355,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
             GeomBasics.setParams(loadName, dir, false, false);
             GeomBasics.loadNodes();
-            f.setTitle("MeshDitor: " + loadName);
+            f.setTitle("网格编辑器: " + loadName);
 
             GeomBasics.findExtremeNodes();
-            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y, scale);
+            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y,
+                    scale);
+            cvas.autoFit();
         }
     }
 
@@ -351,7 +388,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         String saveName = fd.getFile();
         if (dir != null && dir != "" && saveName != null && saveName != "") {
             GeomBasics.writeNodes(dir + saveName);
-            f.setTitle("MeshDitor: " + saveName);
+            f.setTitle("网格编辑器: " + saveName);
             filename = dir + saveName;
             GeomBasics.setParams(saveName, dir, false, false);
         }
@@ -365,7 +402,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         String saveName = fd.getFile();
         if (dir != null && dir != "" && saveName != null && saveName != "") {
             GeomBasics.writeMesh(dir + saveName);
-            f.setTitle("MeshDitor: " + saveName);
+            f.setTitle("网格编辑器: " + saveName);
             filename = dir + saveName;
             GeomBasics.setParams(saveName, dir, false, false);
         }
@@ -379,7 +416,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         String saveName = fd.getFile();
         if (dir != null && dir != "" && saveName != null && saveName != "") {
             GeomBasics.writeQuadMesh(saveName, GeomBasics.triangleList);
-            f.setTitle("MeshDitor: " + saveName);
+            f.setTitle("网格编辑器: " + saveName);
             filename = saveName;
         }
     }
@@ -481,7 +518,8 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             if (!GeomBasics.step) {
                 qm.run();
                 GeomBasics.findExtremeNodes();
-                cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y, scale);
+                cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x,
+                        GeomBasics.uppermost.y, scale);
             } else {
                 Msg.debug("Running QMorph.run(..) in step mode");
             }
@@ -498,10 +536,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             // elementList= tri.getTriangleList(); // tri.incrDelauney(nodeList);
             // edgeList= tri.getEdgeList();
             // nodeList= tri.getNodeList();
-            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y, scale);
+            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y,
+                    scale);
         } else {
             /* Run method in step mode */
-            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y, scale);
+            cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y,
+                    scale);
         }
     }
 
@@ -645,7 +685,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     }
 
     /** A class for handling mouse actions. */
-    class MyMouseListener extends MouseAdapter {
+    class MyMouseListener extends MouseAdapter implements MouseMotionListener {
         Node movingNode = null, oldMovingNode = null;
         int nodeCnt = 0;
         Edge edge1, edge2, edge3, edge4;
@@ -660,6 +700,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         boolean lastActionNewTriangle = false;
         boolean lastActionNewQuad = false;
 
+        // 添加用于网格平移的变量
+        private boolean isPanning = false;
+        private int lastMouseX;
+        private int lastMouseY;
+        private double originalXMin, originalXMax, originalYMin, originalYMax;
+
         double oldX = 0, oldY = 0;
         int nONewEdges = 0;
 
@@ -669,6 +715,11 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         /** Invoked when the mouse has been clicked on a component. */
         @Override
         public void mouseClicked(MouseEvent e) {
+            // 如果是右键点击，不执行任何操作
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                return;
+            }
+
             Msg.debug("Entering mouseClicked(..)");
             Edge b, l, r, t;
             lastActionMoveNode = false;
@@ -771,7 +822,8 @@ public class GUI extends Constants implements ActionListener, ItemListener {
                         edge2 = GeomBasics.edgeList.get(GeomBasics.edgeList.indexOf(edge2));
                     }
                 } else if (nodeCnt == 4 && quadMode) {
-                    if (myNodeList[3] == myNodeList[0] || myNodeList[3] == myNodeList[1] || myNodeList[3] == myNodeList[2]) {
+                    if (myNodeList[3] == myNodeList[0] || myNodeList[3] == myNodeList[1]
+                            || myNodeList[3] == myNodeList[2]) {
                         nodeCnt = 3;
                         return;
                     }
@@ -846,12 +898,67 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             Msg.debug("Leaving mouseClicked(..)");
         }
 
-        /**
-         * Invoked when a mouse button is pressed (but not yet released). If it is
-         * pressed on a particular node, then remember which.
-         */
+        /** Invoked when the mouse is dragged. */
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if (isPanning) {
+                // 计算鼠标移动的距离（在坐标系中的实际距离）
+                double dx = (e.getX() - lastMouseX) / (double) scale;
+                double dy = (e.getY() - lastMouseY) / (double) scale;
+
+                // 更新坐标范围（注意y轴方向是相反的）
+                cvas.xmin = originalXMin - dx;
+                cvas.xmax = originalXMax - dx;
+                cvas.ymin = originalYMin + dy;
+                cvas.ymax = originalYMax + dy;
+
+                // 更新网格和坐标轴位置
+                double ymaxXscale = cvas.ymax * scale;
+                double xminXscale = cvas.xmin * scale;
+                double rounded_ymaxXscale = cvas.signOf(cvas.ymax)
+                        * (Math.abs(ymaxXscale) + cvas.gridIncr
+                                - Math.IEEEremainder(Math.abs(ymaxXscale), cvas.gridIncr));
+                double rounded_xminXscale = cvas.signOf(cvas.xmin)
+                        * (Math.abs(xminXscale) + cvas.gridIncr
+                                - Math.IEEEremainder(Math.abs(xminXscale), cvas.gridIncr));
+
+                cvas.xaxis_yval = cvas.gridIncr + (int) (rounded_ymaxXscale);
+                cvas.yaxis_xval = cvas.gridIncr + (int) (-rounded_xminXscale);
+
+                // 更新网格显示
+                cvas.repaint();
+                return;
+            }
+
+            // 如果不是平移操作，处理其他拖动事件
+            if (movingNode != null) {
+                double x = Math.rint(e.getX() / 10.0) * 10;
+                double y = Math.rint(e.getY() / 10.0) * 10;
+                x = (x - cvas.getYAxisXPos()) / scale;
+                y = (y - cvas.getXAxisYPos()) / -scale;
+                movingNode.setXY(x, y);
+                movingNode.update();
+                cvas.repaint();
+            }
+        }
+
+        /** Invoked when a mouse button is pressed. */
         @Override
         public void mousePressed(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                // 右键按下，开始平移
+                isPanning = true;
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+                // 保存当前的坐标范围
+                originalXMin = cvas.xmin;
+                originalXMax = cvas.xmax;
+                originalYMin = cvas.ymin;
+                originalYMax = cvas.ymax;
+                return;
+            }
+
+            // 原有的节点移动逻辑
             Msg.debug("Entering mousePressed(..)");
             double x = Math.rint(e.getX() / 10.0) * 10;
             double y = Math.rint(e.getY() / 10.0) * 10;
@@ -872,9 +979,17 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             Msg.debug("Leaving mousePressed(..)");
         }
 
-        /** Invoked when a mouse button is released (after being pressed). */
+        /** Invoked when a mouse button is released. */
         @Override
         public void mouseReleased(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                // 结束平移，保存最后的鼠标位置
+                isPanning = false;
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+                return;
+            }
+
             Msg.debug("Entering mouseReleased(..)");
 
             Edge ei, ej, oldE;
@@ -1043,6 +1158,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             lastActionNewQuad = false;
         }
 
+    }
+
+    public void updateScale(int percentage) {
+        if (gctrls != null) {
+            gctrls.scaleCombo.setSelectedItem(percentage + "%");
+        }
     }
 
 }

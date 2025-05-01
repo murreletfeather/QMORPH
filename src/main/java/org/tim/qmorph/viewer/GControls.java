@@ -1,16 +1,8 @@
 package org.tim.qmorph.viewer;
 
-
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Choice;
-import java.awt.Color;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 import org.tim.qmorph.meshing.GeomBasics;
 
@@ -18,13 +10,14 @@ import org.tim.qmorph.meshing.GeomBasics;
  * The Panel class with step button, zoom menu, and axis and grid toggle buttons
  * etc.
  */
-class GControls extends Panel implements ItemListener {
-    Label constructStatus, zoomText;
-    public Label clickStatus = new Label("3");
-    Checkbox grid, axis;
+class GControls extends JPanel {
     GUI gui;
     GCanvas canvas;
-    Button b;
+    JLabel clickStatus;
+    JComboBox<String> scaleCombo;
+    JButton stepButton;
+    JCheckBox showGridBox, showAxisBox;
+    JLabel nodesLabel;
 
     /**
      * Constructor for the panel.
@@ -36,132 +29,94 @@ class GControls extends Panel implements ItemListener {
         this.gui = gui;
         this.canvas = cvas;
 
-        add(constructStatus = new Label("# of nodes remaining: "));
+        setLayout(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        setBackground(new Color(45, 45, 48));
+        setForeground(Color.WHITE);
+
+        // 使用系统默认字体
+        Font controlFont = new Font(Font.DIALOG, Font.PLAIN, 12);
+
+        // 节点计数显示
+        nodesLabel = new JLabel("剩余节点数量: ");
+        nodesLabel.setFont(controlFont);
+        nodesLabel.setForeground(Color.WHITE);
+        add(nodesLabel);
+
+        clickStatus = new JLabel("3");
+        clickStatus.setFont(controlFont);
+        clickStatus.setForeground(Color.WHITE);
         add(clickStatus);
-        add(grid = new Checkbox("Show grid", true));
-        add(axis = new Checkbox("Show axis", true));
-        grid.addItemListener(this);
-        axis.addItemListener(this);
 
-        add(zoomText = new Label("View: "));
-        Choice zoom = new Choice();
-        zoom.addItemListener(this);
-        zoom.addItem("400%");
-        zoom.addItem("200%");
-        zoom.addItem("100%");
-        zoom.addItem("90%");
-        zoom.addItem("80%");
-        zoom.addItem("70%");
-        zoom.addItem("60%");
-        zoom.addItem("50%");
-        zoom.addItem("40%");
-        zoom.addItem("30%");
-        zoom.addItem("20%");
-        zoom.addItem("10%");
-        zoom.setBackground(Color.lightGray);
-        zoom.select("100%");
-        add(zoom);
-
-        add(b = new Button("Step"));
-        b.addActionListener(new MyButtonActionListener());
-    }
-
-    /**
-     * Method which is automatically called when the state of the subscribed items
-     * changes due to user interaction. The item is identified and the required
-     * action is taken.
-     */
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-
-        if (e.getSource() instanceof Choice) {
-            String zoom = (String) e.getItem();
-            if (zoom.equals("400%")) {
-                gui.scale = 400;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("200%")) {
-                gui.scale = 200;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("100%")) {
-                gui.scale = 100;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("90%")) {
-                gui.scale = 90;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("80%")) {
-                gui.scale = 80;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("70%")) {
-                gui.scale = 70;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("60%")) {
-                gui.scale = 60;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("50%")) {
-                gui.scale = 50;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("40%")) {
-                gui.scale = 40;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("30%")) {
-                gui.scale = 30;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("20%")) {
-                gui.scale = 20;
-                canvas.setScale(gui.scale);
-                canvas.repaint();
-            } else if (zoom.equals("10%")) {
-                gui.scale = 10;
-                canvas.setScale(gui.scale);
+        // 网格显示控制
+        showGridBox = new JCheckBox("显示网格", true);
+        showGridBox.setFont(controlFont);
+        showGridBox.setForeground(Color.WHITE);
+        showGridBox.setBackground(new Color(45, 45, 48));
+        showGridBox.setOpaque(true);
+        showGridBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                gui.grid = showGridBox.isSelected();
                 canvas.repaint();
             }
+        });
+        add(showGridBox);
 
-        } else if (e.getSource() instanceof Checkbox) {
-            String box = (String) e.getItem();
-            if (box.equals("Show grid")) {
-                gui.grid = grid.getState();
-                canvas.repaint();
-            } else if (box.equals("Show axis")) {
-                gui.axis = axis.getState();
+        // 坐标轴显示控制
+        showAxisBox = new JCheckBox("显示坐标轴", true);
+        showAxisBox.setFont(controlFont);
+        showAxisBox.setForeground(Color.WHITE);
+        showAxisBox.setBackground(new Color(45, 45, 48));
+        showAxisBox.setOpaque(true);
+        showAxisBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                gui.axis = showAxisBox.isSelected();
                 canvas.repaint();
             }
-        }
-    }
+        });
+        add(showAxisBox);
 
-    /** A listener class for the step button. */
-    class MyButtonActionListener implements ActionListener {
+        // 缩放控制
+        JLabel viewLabel = new JLabel("视图:");
+        viewLabel.setFont(controlFont);
+        viewLabel.setForeground(Color.WHITE);
+        add(viewLabel);
 
-        /**
-         * Method which is automatically called when the button is pressed. The required
-         * action is taken.
-         */
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            MsgDialog md;
-            GeomBasics method = GeomBasics.getCurMethod();
-            if (method != null) {
-                method.step(); // Run one more step ...
-
-                if (GeomBasics.leftmost == null) {
-                    GeomBasics.findExtremeNodes();
+        String[] scales = { "25%", "50%", "75%", "100%", "150%", "200%", "300%", "400%" };
+        scaleCombo = new JComboBox<>(scales);
+        scaleCombo.setFont(controlFont);
+        scaleCombo.setBackground(new Color(60, 60, 63));
+        scaleCombo.setForeground(Color.WHITE);
+        scaleCombo.setSelectedItem("100%");
+        scaleCombo.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    String s = (String) scaleCombo.getSelectedItem();
+                    s = s.substring(0, s.length() - 1);
+                    canvas.setScale(Integer.parseInt(s));
                 }
-                // canvas.repaint();
-                // GeomBasics.findExtremeNodes();
-                canvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y, gui.scale);
-            } else {
-                md = new MsgDialog(gui.f, "Program message", "You must choose a method first.", 40, 1);
-                md.show();
             }
-        }
+        });
+        // 设置下拉框的首选大小
+        scaleCombo.setPreferredSize(new Dimension(80, scaleCombo.getPreferredSize().height));
+        add(scaleCombo);
+
+        // 步进按钮
+        stepButton = new JButton("下一步");
+        stepButton.setFont(controlFont);
+        stepButton.setBackground(new Color(70, 70, 73));
+        stepButton.setForeground(Color.WHITE);
+        stepButton.setFocusPainted(false); // 移除焦点边框
+        stepButton.setBorderPainted(false); // 移除边框
+        stepButton.setOpaque(true);
+        stepButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (gui.qm != null) {
+                    gui.qm.run();
+                } else if (gui.tri != null) {
+                    gui.tri.run();
+                }
+            }
+        });
+        add(stepButton);
     }
 }

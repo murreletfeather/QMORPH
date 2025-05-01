@@ -1,37 +1,38 @@
 package org.tim.qmorph.viewer;
 
-import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.Font;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import javax.swing.*;
+import java.awt.Font;
 
-/** A class which opens a help dialog window. */
-
-public class HelpDialog extends Dialog implements ItemListener {
-    Button ok;
-    TextArea textArea;
-    String text = "" + "                Quick help for MeshDitor\n" + "                ------------------------\n" + "\n"
-            + "    This GUI was written mainly to assist debugging and tuning\n" + "of parameters for the implementation of the Q-Morph algorithm.\n"
-            + "So if it looks like a mess, this is the reason.\n" + "\n" + "Most of the menu items should be self-explanatory. Nevertheless, the details\n"
-            + "of some of the interesting items are given below:\n" + "\n" + "* 'Export mesh to LaTeX file' - Assuming that you have the epic and eepic\n"
-            + "packages for LaTeX, you can include exported meshes in LaTeX documents.\n" + "\n"
-            + "* 'Step on' - When selected, the incremental Delaunay method and the Q-Morph\n"
-            + "method will run in step mode. Use the step button (in the lower part of the\n" + "program window) to step through the methods.\n" + "\n"
-            + "* 'Run incr. Delaunay method' - Run the implementation of an incremental\n" + "Delaunay algorithm.\n" + "\n"
-            + "* 'Run Q-Morph' - Run the implementation of the Q-Morph algorithm.\n" + "Supply parameters for the algorithm in the dialog box.\n";
-
+/** A class which opens a "help" dialog window. */
+public class HelpDialog extends JDialog {
+    JButton ok;
+    JTextArea textArea;
     GridBagLayout gridbag;
+    String text = "网格编辑器使用帮助\n\n" +
+            "基本操作：\n" +
+            "- 左键点击：选择或创建节点\n" +
+            "- 右键拖动：平移视图\n" +
+            "- 鼠标滚轮：缩放视图\n\n" +
+            "显示控制：\n" +
+            "- 显示网格：显示或隐藏背景网格\n" +
+            "- 显示坐标轴：显示或隐藏坐标轴\n" +
+            "- 视图：选择缩放比例\n\n" +
+            "网格操作：\n" +
+            "- 下一步：执行下一个网格生成步骤\n" +
+            "- 自动适应：自动调整视图以适应当前网格\n\n" +
+            "快捷键：\n" +
+            "- Ctrl+N：新建\n" +
+            "- Ctrl+O：打开\n" +
+            "- Ctrl+S：保存\n" +
+            "- Ctrl+Q：退出\n";
 
-    public HelpDialog(Frame f) {
-        super(f, "Quick help for MeshDitor", true);
+    public HelpDialog(JFrame f) {
+        super(f, "网格编辑器帮助", true);
 
         gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
@@ -43,34 +44,38 @@ public class HelpDialog extends Dialog implements ItemListener {
         c.ipady = 0;
         c.fill = GridBagConstraints.NONE;
 
-        add(textArea = new TextArea(text, 18, 80, TextArea.SCROLLBARS_VERTICAL_ONLY));
+        textArea = new JTextArea(text, 18, 40);
         textArea.setEditable(false);
-        textArea.setBackground(Color.black);
-        textArea.setForeground(Color.yellow);
+        textArea.setBackground(new Color(45, 45, 48));
+        textArea.setForeground(Color.WHITE);
         textArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        c.gridwidth = GridBagConstraints.REMAINDER; // end row
-        gridbag.setConstraints(textArea, c);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
 
-        add(ok = new Button("OK"));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        add(scrollPane);
+        c.gridwidth = GridBagConstraints.REMAINDER; // end row
+        gridbag.setConstraints(scrollPane, c);
+
+        ok = new JButton("确定");
+        ok.setBackground(new Color(60, 60, 63));
+        ok.setForeground(Color.WHITE);
+        ok.setFocusPainted(false);
+        ok.setBorderPainted(false);
+        ok.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        add(ok);
         c.gridwidth = GridBagConstraints.REMAINDER; // end row
         gridbag.setConstraints(ok, c);
 
-        ok.addActionListener(new ButtonActionListener());
-        pack();
-    }
-
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-    }
-
-    class ButtonActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            if (command.equals("OK")) {
+        ok.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 dispose();
             }
-        }
-    }
+        });
 
+        pack();
+        setLocationRelativeTo(f);
+    }
 }

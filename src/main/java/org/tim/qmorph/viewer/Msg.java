@@ -1,6 +1,7 @@
 package org.tim.qmorph.viewer;
+
 //finished
-import java.awt.Frame;
+import javax.swing.JFrame;
 
 /**
  * This class outputs messages to the user.
@@ -11,13 +12,13 @@ public class Msg {
 
     /** Output an error message and then exit the program. */
     public static void error(String err) {
-        Frame f = new Frame();
+        JFrame f = new JFrame();
         MsgDialog errorDialog;
         Error error = new Error(err);
         error.printStackTrace();
 
-        errorDialog = new MsgDialog(f, "Program error", "Program error.\nSee the log-file for details.", 40, 2);
-        errorDialog.show();
+        errorDialog = new MsgDialog(f, "程序错误", "程序发生错误。\n详细信息请查看日志文件。", 40, 2);
+        errorDialog.setVisible(true);
 
         System.exit(1);
     }
@@ -25,14 +26,14 @@ public class Msg {
     /** Output a warning message. */
     public static void warning(String warn) {
         if (debugMode) {
-            System.out.println("Warning: " + warn);
+            System.out.println("警告: " + warn);
         }
     }
 
     /** Output a debug message. */
     public static void debug(String msg) {
         if (debugMode) {
-            System.out.println("Debug: " + msg);
+            System.out.println("调试: " + msg);
         }
     }
 }
