@@ -17,7 +17,7 @@ public class AboutDialog extends JDialog {
             "一个用于创建和编辑二维网格的工具。\n" +
             "支持三角形和四边形网格的生成和编辑。\n\n" +
             "作者：Tim\n" +
-            "日期：2024\n";
+            "日期：2025\n";
 
     public AboutDialog(JFrame f) {
         super(f, "关于网格编辑器", true);

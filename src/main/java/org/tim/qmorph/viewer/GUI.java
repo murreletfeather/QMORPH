@@ -36,13 +36,21 @@ import org.tim.qmorph.meshing.GlobalSmooth;
 import org.tim.qmorph.meshing.QMorph;
 import org.tim.qmorph.meshing.TopoCleanup;
 
+// Add new Swing imports
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+
 /** This class implements the graphical user interface. */
 public class GUI extends Constants implements ActionListener, ItemListener {
 
     /** Create frame, set font */
     public GUI() {
         f = new JFrame("网格编辑器");
-        f.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        f.setFont(new Font("Microsoft YaHei", Font.PLAIN, 12));
         f.setIconImage(null);
         GeomBasics.createNewLists();
     }
@@ -50,7 +58,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     /** Create frame, set font, instantiate QMorph */
     public GUI(String dir, String filename) {
         f = new JFrame("网格编辑器: " + filename);
-        f.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        f.setFont(new Font("Microsoft YaHei", Font.PLAIN, 12));
         f.setIconImage(null);
 
         this.filename = filename;
@@ -80,20 +88,20 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     JFrame f;
     private GCanvas cvas;
     public GControls gctrls;
-    private ScrollPane sp;
-    private MenuBar mb;
+    private JScrollPane sp;
+    private JMenuBar mb;
 
-    MenuItem mi;
-    Menu fileMenu, editMenu, modeMenu, debugMenu, runMenu, helpMenu;
+    JMenuItem mi;
+    JMenu fileMenu, editMenu, modeMenu, debugMenu, runMenu, helpMenu;
     int width = 1280, height = 720;
     int scale = 100;
     MyMouseListener myMouseListener;
 
-    MenuItem newItem, loadMeshItem, loadNodesItem, saveItem, saveAsItem, saveNodesItem, saveNodesAsItem, saveTriAsItem,
+    JMenuItem newItem, loadMeshItem, loadNodesItem, saveItem, saveAsItem, saveNodesItem, saveNodesAsItem, saveTriAsItem,
             exportItem, exitItem;
-    MenuItem undoItem, clearEdgesItem;
-    CheckboxMenuItem nodeModeItem, triModeItem, quadModeItem, debugModeItem, stepModeItem;
-    MenuItem consistencyItem, detectInversionItem, printElementsItem, printTrianglesItem, reportMetricsItem,
+    JMenuItem undoItem, clearEdgesItem;
+    JCheckBoxMenuItem nodeModeItem, triModeItem, quadModeItem, debugModeItem, stepModeItem;
+    JMenuItem consistencyItem, detectInversionItem, printElementsItem, printTrianglesItem, reportMetricsItem,
             printValencesItem, printValPatItem,
             printAngAtSurNodesItem, centroidItem, triCountItem, delauneyItem, qmorphItem, globalCleanUpItem,
             globalSmoothItem, helpItem, aboutItem;
@@ -108,23 +116,22 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         f.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.exit(0); // Exit the application when the window is closed
+                System.exit(0);
             }
         });
 
-        fileMenu = new Menu("File");
-        newItem = new MenuItem("New");
-        loadMeshItem = new MenuItem("Load mesh");
-        loadNodesItem = new MenuItem("Load nodes");
-        saveItem = new MenuItem("Save mesh");
-        saveAsItem = new MenuItem("Save mesh as...");
-        saveNodesItem = new MenuItem("Save nodes");
-        saveNodesAsItem = new MenuItem("Save nodes as...");
-        saveTriAsItem = new MenuItem("Save triangle mesh as...");
-        exportItem = new MenuItem("Export mesh to LaTeX file");
-        exitItem = new MenuItem("Exit");
-        qkey = new MenuShortcut(KeyEvent.VK_Q, false);
-        exitItem.setShortcut(qkey);
+        fileMenu = new JMenu("文件");
+        newItem = new JMenuItem("新建");
+        loadMeshItem = new JMenuItem("加载网格");
+        loadNodesItem = new JMenuItem("加载节点");
+        saveItem = new JMenuItem("保存网格");
+        saveAsItem = new JMenuItem("网格另存为...");
+        saveNodesItem = new JMenuItem("保存节点");
+        saveNodesAsItem = new JMenuItem("节点另存为...");
+        saveTriAsItem = new JMenuItem("三角网格另存为...");
+        exportItem = new JMenuItem("导出网格到LaTeX文件");
+        exitItem = new JMenuItem("退出");
+        exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
 
         newItem.addActionListener(this);
         loadMeshItem.addActionListener(this);
@@ -149,60 +156,63 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
 
-        editMenu = new Menu("Edit");
-        undoItem = new MenuItem("Undo last node/edge creation or move");
+        editMenu = new JMenu("编辑");
+        undoItem = new JMenuItem("撤销上一次节点/边创建或移动");
         undoItem.addActionListener(this);
         editMenu.add(undoItem);
-        clearEdgesItem = new MenuItem("Clear all edges");
+        clearEdgesItem = new JMenuItem("清除所有边");
         clearEdgesItem.addActionListener(this);
         editMenu.add(clearEdgesItem);
 
-        modeMenu = new Menu("Mode");
+        modeMenu = new JMenu("模式");
 
-        nodeModeItem = new CheckboxMenuItem("Plot nodes");
+        nodeModeItem = new JCheckBoxMenuItem("绘制节点");
         nodeModeItem.setState(false);
         nodeModeItem.addItemListener(this);
         modeMenu.add(nodeModeItem);
 
-        triModeItem = new CheckboxMenuItem("Construct triangles");
+        triModeItem = new JCheckBoxMenuItem("构造三角形");
         triModeItem.setState(true);
         triModeItem.addItemListener(this);
         modeMenu.add(triModeItem);
-        quadModeItem = new CheckboxMenuItem("Construct quads");
+
+        quadModeItem = new JCheckBoxMenuItem("构造四边形");
         quadModeItem.setState(false);
         quadModeItem.addItemListener(this);
         modeMenu.add(quadModeItem);
+
         modeMenu.addSeparator();
-        debugModeItem = new CheckboxMenuItem("Debug mode");
+
+        debugModeItem = new JCheckBoxMenuItem("调试模式");
         debugModeItem.setState(Msg.debugMode);
         debugModeItem.addItemListener(this);
         modeMenu.add(debugModeItem);
-        stepModeItem = new CheckboxMenuItem("Step mode");
+
+        stepModeItem = new JCheckBoxMenuItem("步进模式");
         stepModeItem.setState(false);
         stepModeItem.addItemListener(this);
         modeMenu.add(stepModeItem);
 
-        debugMenu = new Menu("Debug");
-        consistencyItem = new MenuItem("Test consistency of mesh");
+        debugMenu = new JMenu("调试");
+        consistencyItem = new JMenuItem("测试网格一致性");
         consistencyItem.addActionListener(this);
-        detectInversionItem = new MenuItem("Detect inverted elements");
+        detectInversionItem = new JMenuItem("检测反转元素");
         detectInversionItem.addActionListener(this);
-        printTrianglesItem = new MenuItem("Print triangleList");
+        printTrianglesItem = new JMenuItem("打印三角形列表");
         printTrianglesItem.addActionListener(this);
-        printElementsItem = new MenuItem("Print elementList");
+        printElementsItem = new JMenuItem("打印元素列表");
         printElementsItem.addActionListener(this);
-        reportMetricsItem = new MenuItem("Report mesh metrics");
+        reportMetricsItem = new JMenuItem("报告网格度量");
         reportMetricsItem.addActionListener(this);
-        printValencesItem = new MenuItem("Print valences of all nodes");
+        printValencesItem = new JMenuItem("打印所有节点的价");
         printValencesItem.addActionListener(this);
-        printValPatItem = new MenuItem("Print valence patterns of all nodes");
+        printValPatItem = new JMenuItem("打印所有节点的价模式");
         printValPatItem.addActionListener(this);
-        printAngAtSurNodesItem = new MenuItem("Print angles at surrounding nodes");
+        printAngAtSurNodesItem = new JMenuItem("打印周围节点的角度");
         printAngAtSurNodesItem.addActionListener(this);
-
-        centroidItem = new MenuItem("Create centroid for last quad");
+        centroidItem = new JMenuItem("为最后一个四边形创建质心");
         centroidItem.addActionListener(this);
-        triCountItem = new MenuItem("Count triangles");
+        triCountItem = new JMenuItem("计算三角形数量");
         triCountItem.addActionListener(this);
 
         debugMenu.add(consistencyItem);
@@ -216,33 +226,33 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         debugMenu.add(centroidItem);
         debugMenu.add(triCountItem);
 
-        runMenu = new Menu("Run");
-        qmorphItem = new MenuItem("Run QMorph");
-        delauneyItem = new MenuItem("Run Delauney generator");
+        runMenu = new JMenu("运行");
+        qmorphItem = new JMenuItem("运行QMorph");
+        delauneyItem = new JMenuItem("运行Delauney生成器");
         delauneyItem.addActionListener(this);
         qmorphItem.addActionListener(this);
 
         runMenu.add(qmorphItem);
         runMenu.add(delauneyItem);
 
-        helpMenu = new Menu("Help");
-        helpItem = new MenuItem("Help");
-        aboutItem = new MenuItem("About");
+        helpMenu = new JMenu("帮助");
+        helpItem = new JMenuItem("帮助");
+        aboutItem = new JMenuItem("关于");
         helpItem.addActionListener(this);
         aboutItem.addActionListener(this);
 
         helpMenu.add(helpItem);
         helpMenu.add(aboutItem);
 
-        mb = new MenuBar();
+        mb = new JMenuBar();
         mb.add(fileMenu);
         mb.add(editMenu);
         mb.add(modeMenu);
         mb.add(debugMenu);
         mb.add(runMenu);
-        mb.setHelpMenu(helpMenu);
+        mb.add(helpMenu);
 
-        f.setMenuBar(mb);
+        f.setJMenuBar(mb);
 
         f.setBackground(Color.lightGray);
         f.setForeground(Color.black);
@@ -256,9 +266,8 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
         myMouseListener = new MyMouseListener();
         cvas.addMouseListener(myMouseListener);
-        cvas.addMouseMotionListener(myMouseListener); // 添加鼠标移动事件监听
+        cvas.addMouseMotionListener(myMouseListener);
 
-        // 添加窗口大小改变监听器
         f.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
@@ -269,11 +278,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         cvas.repaint();
 
         f.add("South", gctrls = new GControls(this, cvas));
-        f.add("Center", sp = new ScrollPane(ScrollPane.SCROLLBARS_ALWAYS));
+        sp = new JScrollPane(cvas);
+        sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         sp.setForeground(Color.darkGray);
         sp.setBackground(Color.lightGray);
-
-        sp.add(cvas);
+        f.add("Center", sp);
 
         cvas.setForeground(Color.black);
         cvas.setBackground(Color.black);
@@ -282,28 +292,17 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         cvas.addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                // Get the mouse wheel rotation
                 int rotation = e.getWheelRotation();
-
-                // Calculate new scale
                 if (rotation < 0) {
-                    // Zoom in - increase scale by 10%
                     scale = (int) (scale * 1.1);
                 } else {
-                    // Zoom out - decrease scale by 10%
                     scale = (int) (scale * 0.9);
                 }
-
-                // Ensure scale stays within reasonable bounds
                 if (scale < 10)
                     scale = 10;
                 if (scale > 400)
                     scale = 400;
-
-                // Update canvas with new scale
                 cvas.setScale(scale);
-
-                // Update scale percentage in combo box
                 int percentage = (int) ((scale / 100.0) * 100);
                 updateScale(percentage);
             }
@@ -573,16 +572,16 @@ public class GUI extends Constants implements ActionListener, ItemListener {
      */
     @Override
     public void itemStateChanged(ItemEvent e) {
-        String command = (String) e.getItem();
-        if (command.equals("Plot nodes")) {
+        Object source = e.getSource();
+        if (source == nodeModeItem) {
             commandNodeMode();
-        } else if (command.equals("Construct triangles")) {
+        } else if (source == triModeItem) {
             commandTriMode();
-        } else if (command.equals("Construct quads")) {
+        } else if (source == quadModeItem) {
             commandQuadMode();
-        } else if (command.equals("Debug mode")) {
+        } else if (source == debugModeItem) {
             commandToggleDebugMode();
-        } else if (command.equals("Step mode")) {
+        } else if (source == stepModeItem) {
             commandToggleStepMode();
         }
     }
@@ -597,59 +596,52 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         AboutDialog ad;
         MsgDialog rd;
 
-        String command = e.getActionCommand();
+        Object source = e.getSource();
 
-        if (command.equals("New")) {
+        if (source == newItem) {
             commandNew();
-        } else if (command.equals("Load mesh")) {
+        } else if (source == loadMeshItem) {
             commandLoadMesh();
-        } else if (command.equals("Load nodes")) {
+        } else if (source == loadNodesItem) {
             commandLoadNodes();
-        } else if (command.equals("Save mesh")) {
+        } else if (source == saveItem) {
             commandSaveMesh();
-        } else if (command.equals("Save nodes")) {
+        } else if (source == saveNodesItem) {
             commandSaveNodes();
-        } else if (command.equals("Save nodes as...")) {
+        } else if (source == saveNodesAsItem) {
             commandSaveNodesAs();
-        } else if (command.equals("Save mesh as...")) {
+        } else if (source == saveAsItem) {
             commandSaveMeshAs();
-        } else if (command.equals("Save triangle mesh as...")) {
+        } else if (source == saveTriAsItem) {
             commandSaveTriangleMeshAs();
-        } else if (command.equals("Export mesh to LaTeX file")) {
+        } else if (source == exportItem) {
             commandExportMeshToLaTeX();
-        } else if (command.equals("Exit")) {
+        } else if (source == exitItem) {
             System.exit(0);
-        } else if (command.equals("Undo last node/edge creation or move")) {
+        } else if (source == undoItem) {
             commandUndo();
-        } else if (command.equals("Clear all edges")) {
+        } else if (source == clearEdgesItem) {
             commandClearEdges();
-        }
-
-        else if (command.equals("Test consistency of mesh")) {
+        } else if (source == consistencyItem) {
             GeomBasics.consistencyCheck();
-        } else if (command.equals("Detect inverted elements")) {
+        } else if (source == detectInversionItem) {
             GeomBasics.detectInvertedElements();
             cvas.repaint();
-        } else if (command.equals("Print triangleList")) {
+        } else if (source == printTrianglesItem) {
             GeomBasics.printTriangles(GeomBasics.getTriangleList());
-        } else if (command.equals("Print elementList")) {
+        } else if (source == printElementsItem) {
             GeomBasics.printQuads(GeomBasics.getElementList());
-        }
-        // else if (command.equals("Update mesh metrics")) {
-        // GeomBasics.updateMeshMetrics();
-        // }
-        else if (command.equals("Report mesh metrics")) {
+        } else if (source == reportMetricsItem) {
             GeomBasics.updateMeshMetrics();
-            rd = new MsgDialog(f, "Mesh Metrics Report", GeomBasics.meshMetricsReport(), 80, 18);
+            rd = new MsgDialog(f, "网格度量报告", GeomBasics.meshMetricsReport(), 80, 18);
             rd.show();
-        } else if (command.equals("Print valences of all nodes")) {
+        } else if (source == printValencesItem) {
             GeomBasics.printValences();
-        } else if (command.equals("Print valence patterns of all nodes")) {
+        } else if (source == printValPatItem) {
             GeomBasics.printValPatterns();
-        } else if (command.equals("Print angles at surrounding nodes")) {
+        } else if (source == printAngAtSurNodesItem) {
             GeomBasics.printAnglesAtSurrondingNodes();
-        } else if (command.equals("Create centroid for last quad")) {
-
+        } else if (source == centroidItem) {
             Node n;
             Quad q;
             Element elem;
@@ -663,22 +655,16 @@ public class GUI extends Constants implements ActionListener, ItemListener {
                     cvas.repaint();
                 }
             }
-        } else if (command.equals("Count triangles")) {
+        } else if (source == triCountItem) {
             GeomBasics.countTriangles();
-        }
-
-        else if (command.equals("Run QMorph")) {
+        } else if (source == qmorphItem) {
             commandQMorph();
-        } else if (command.equals("Run Delauney generator")) {
+        } else if (source == delauneyItem) {
             commandDelaunay();
-        } else if (command.equals("Run topological cleanup")) {
-            commandTopoCleanup();
-        } else if (command.equals("Run smooth")) {
-            commandSmooth();
-        } else if (command.equals("Help")) {
+        } else if (source == helpItem) {
             hd = new HelpDialog(f);
             hd.show();
-        } else if (command.equals("About")) {
+        } else if (source == aboutItem) {
             ad = new AboutDialog(f);
             ad.show();
         }
