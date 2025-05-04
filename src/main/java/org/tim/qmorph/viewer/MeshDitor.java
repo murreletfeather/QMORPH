@@ -1,7 +1,5 @@
 package org.tim.qmorph.viewer;
 
-
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -13,7 +11,7 @@ import org.tim.qmorph.meshing.QMorph;
  * This is the executable class. It has methods for outputting version and help
  * information, and for processing user command line options.
  *
- * @author Karl Erik Levik
+ * @author TIM
  * @version 1.0
  */
 

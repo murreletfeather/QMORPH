@@ -22,7 +22,7 @@ import org.tim.qmorph.viewer.Msg;
  *
  * Note that the boundary layer smoothing is not implemented.
  *
- * @author Karl Erik Levik
+ * @author TIM
  *
  */
 // ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
@@ -114,7 +114,8 @@ public class GlobalSmooth extends GeomBasics {
      * @return true if the new constrained-smoothed position is acceptable according
      *         to the criteria given in section 4.2 of the article.
      */
-    private boolean acceptable(int N, int Nminus, int Nplus, int Nup, int Ndown, int Ninverted, double deltaMy, double theta) {
+    private boolean acceptable(int N, int Nminus, int Nplus, int Nup, int Ndown, int Ninverted, double deltaMy,
+            double theta) {
 
         Msg.debug("Entering acceptable(..)");
         Msg.debug("... N:" + N);

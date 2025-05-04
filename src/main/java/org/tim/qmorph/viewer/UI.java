@@ -1,6 +1,5 @@
 package org.tim.qmorph.viewer;
 
-
 import org.tim.qmorph.geom.Edge;
 import org.tim.qmorph.meshing.GeomBasics;
 import org.tim.qmorph.meshing.QMorph;
@@ -12,7 +11,7 @@ import org.tim.qmorph.meshing.QMorph;
  *
  * This implementation only supports 2D triangle meshes.
  *
- * @author Karl Erik Levik
+ * @author TIM
  */
 
 public class UI {

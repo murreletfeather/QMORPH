@@ -21,7 +21,7 @@ import org.tim.qmorph.viewer.Msg;
  *
  * @see <a href="http://www.andrew.cmu.edu/user/sowen/abstracts/Ow509.html"
  *      TARGET="_top">the abstract of the paper</a>
- * @author Karl Erik Levik
+ * @author TIM
  *
  */
 // ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
@@ -267,7 +267,8 @@ public class QMorph extends GeomBasics {
         Msg.debug("...otherSide== " + otherSide.descr());
 
         Edge cur = null, prev, tmp;
-        Node n1 = side.commonNode(b), n2 = otherSide.commonNode(b), n3 = side.otherNode(n1), n4 = otherSide.otherNode(n2);
+        Node n1 = side.commonNode(b), n2 = otherSide.commonNode(b), n3 = side.otherNode(n1),
+                n4 = otherSide.otherNode(n2);
         int count1stLoop = 1, count2ndLoop = 1, count3rdLoop = 1, n3n4Edges = 0, count = 0;
         boolean n4Inn3Loop = false;
 
@@ -394,13 +395,13 @@ public class QMorph extends GeomBasics {
 
     /** Make sure the triangle mesh consists exclusively of triangles */
     private boolean verifyTriangleMesh(List<Triangle> triangleList) {
-//		Object o;
-//		for (Object element : triangleList) {
-//			o = element;
-//			if (!(o instanceof Triangle)) {
-//				return false;
-//			}
-//		}
+        // Object o;
+        // for (Object element : triangleList) {
+        // o = element;
+        // if (!(o instanceof Triangle)) {
+        // return false;
+        // }
+        // }
         return true;
     }
 
@@ -524,7 +525,7 @@ public class QMorph extends GeomBasics {
      */
     private Node smoothFrontNode(Node nK, Node nJ, Quad myQ, Edge front1, Edge front2) {
         Msg.debug("Entering smoothFrontNode(..)...");
-//		List<Element> adjQuads = nK.adjQuads();
+        // List<Element> adjQuads = nK.adjQuads();
         double tr, ld = 0;
         Quad q;
         Node newNode;
@@ -1709,7 +1710,8 @@ public class QMorph extends GeomBasics {
         Quad q1New = new Quad(b, l, r, eMidKm1);
         q1New.connectEdges();
 
-        Triangle t1New = new Triangle(eF, eFL, eKMid), t2New = new Triangle(eMidKm1, eMidTT, eTLKm1), t3New = new Triangle(eKMid, eMidTT, eTLK);
+        Triangle t1New = new Triangle(eF, eFL, eKMid), t2New = new Triangle(eMidKm1, eMidTT, eTLKm1),
+                t3New = new Triangle(eKMid, eMidTT, eTLK);
 
         t1New.connectEdges();
         t2New.connectEdges();
@@ -1802,7 +1804,8 @@ public class QMorph extends GeomBasics {
         Edge q1Top = q1.oppositeEdge(longer), q1nK = q1.neighborEdge(nK, longer), eKm1Opp = q1.oppositeEdge(q1nK);
         Edge eT1K = t1.neighborEdge(nK, longer), eT1Km1 = t1.neighborEdge(nKm1, longer);
         Node c = q1.centroid(), mid = longer.midPoint();
-        Edge eF = new Edge(nK, c), eFL = new Edge(c, mid), eCOpp = new Edge(c, opposite), eMidTT = new Edge(mid, t1.oppositeOfEdge(longer)),
+        Edge eF = new Edge(nK, c), eFL = new Edge(c, mid), eCOpp = new Edge(c, opposite),
+                eMidTT = new Edge(mid, t1.oppositeOfEdge(longer)),
                 eKMid = new Edge(nK, mid), eMidKm1 = new Edge(mid, nKm1);
 
         longer.disconnectNodes();
@@ -2003,19 +2006,22 @@ public class QMorph extends GeomBasics {
                 } else {
                     q = doSeam(e, e.leftFrontNeighbor, e.leftNode);
                 }
-            } else if (e.getState() != 2 && e.isLargeTransition(e.leftFrontNeighbor) && e.sumAngle(eTri, e.leftNode, e.leftFrontNeighbor) < Math.PI) {
+            } else if (e.getState() != 2 && e.isLargeTransition(e.leftFrontNeighbor)
+                    && e.sumAngle(eTri, e.leftNode, e.leftFrontNeighbor) < Math.PI) {
                 q = doTransitionSplit(e, e.leftFrontNeighbor, e.leftNode);
             }
 
             int nQRight = e.rightNode.nrOfAdjQuads();
-            if (needsSeam(e, e.rightFrontNeighbor, e.rightNode, nQRight) && canSeam(e.rightNode, e, e.rightFrontNeighbor)) {
+            if (needsSeam(e, e.rightFrontNeighbor, e.rightNode, nQRight)
+                    && canSeam(e.rightNode, e, e.rightFrontNeighbor)) {
 
                 if (e.isLargeTransition(e.rightFrontNeighbor)) {
                     q = doTransitionSeam(e, e.rightFrontNeighbor, e.rightNode);
                 } else {
                     q = doSeam(e, e.rightFrontNeighbor, e.rightNode);
                 }
-            } else if (e.getState() != 2 && e.isLargeTransition(e.rightFrontNeighbor) && e.sumAngle(eTri, e.rightNode, e.rightFrontNeighbor) < Math.PI) {
+            } else if (e.getState() != 2 && e.isLargeTransition(e.rightFrontNeighbor)
+                    && e.sumAngle(eTri, e.rightNode, e.rightFrontNeighbor) < Math.PI) {
                 q = doTransitionSplit(e, e.rightFrontNeighbor, e.rightNode);
             }
         }
@@ -2100,7 +2106,8 @@ public class QMorph extends GeomBasics {
 
         Msg.debug("...e.leftSide: " + lSide.descr() + ", e.rightSide: " + rSide.descr());
 
-        if (((lSide.otherNode(e.leftNode).frontNode() && !lSide.isFrontEdge()) || (rSide.otherNode(e.rightNode).frontNode() && !rSide.isFrontEdge()))) {
+        if (((lSide.otherNode(e.leftNode).frontNode() && !lSide.isFrontEdge())
+                || (rSide.otherNode(e.rightNode).frontNode() && !rSide.isFrontEdge()))) {
 
             /*
              * if (evenInitNrOfFronts && ( (lSide.otherNode(e.leftNode).frontNode() &&
@@ -2119,11 +2126,13 @@ public class QMorph extends GeomBasics {
                 Msg.debug("nM= " + rSide.otherNode(e.rightNode).descr() + " lies on an opposing front...");
             }
 
-            if (/* lSide.getQuadElement()== null && */ !lSide.boundaryEdge() && lSide.otherNode(e.leftNode).frontNode() && !lSide.isFrontEdge()) {
+            if (/* lSide.getQuadElement()== null && */ !lSide.boundaryEdge() && lSide.otherNode(e.leftNode).frontNode()
+                    && !lSide.isFrontEdge()) {
                 lLoop = true;
             }
 
-            if (/* rSide.getQuadElement()== null && */ !rSide.boundaryEdge() && rSide.otherNode(e.rightNode).frontNode() && !rSide.isFrontEdge()) {
+            if (/* rSide.getQuadElement()== null && */ !rSide.boundaryEdge() && rSide.otherNode(e.rightNode).frontNode()
+                    && !rSide.isFrontEdge()) {
                 rLoop = true;
             }
 
@@ -2291,7 +2300,8 @@ public class QMorph extends GeomBasics {
 
         if (selAng < EPSILON) {
             Msg.debug("... reusing edge " + selected.descr());
-            Msg.debug("Leaving defineSideEdge(..): Reusing, EPSILON > " + selAng + " =" + Math.toDegrees(selAng) + " degrees");
+            Msg.debug("Leaving defineSideEdge(..): Reusing, EPSILON > " + selAng + " =" + Math.toDegrees(selAng)
+                    + " degrees");
             return selected;
         }
 
@@ -2302,7 +2312,8 @@ public class QMorph extends GeomBasics {
         // Yeah, that sounds like a good idea:
         if (selected.otherNode(nK).frontNode()) {
             // if (selAng < EPSILONLARGER) {
-            Msg.debug("Leaving defineSideEdge(..): nM on front, reusing: " + Math.toDegrees(selAng) + " degrees, returning edge " + selected.descr());
+            Msg.debug("Leaving defineSideEdge(..): nM on front, reusing: " + Math.toDegrees(selAng)
+                    + " degrees, returning edge " + selected.descr());
             return selected;
             /*
              * } else
@@ -2336,7 +2347,8 @@ public class QMorph extends GeomBasics {
         Msg.debug("...ang1=" + Math.toDegrees(ang1));
         Msg.debug("...ang2=" + Math.toDegrees(ang2));
 
-        if ((bisected >= ang1 && bisected <= ang2) || elem2 == null) { // Does vK go through elem1? or is elem1 the only element connected to selected?
+        if ((bisected >= ang1 && bisected <= ang2) || elem2 == null) { // Does vK go through elem1? or is elem1 the only
+                                                                       // element connected to selected?
             Msg.debug("...bisected runs through elem1");
             if (elem1 instanceof Quad) {
                 Msg.debug("Leaving defineSideEdge(..): elem1 is a Quad");
@@ -2558,7 +2570,8 @@ public class QMorph extends GeomBasics {
             if (!T.contains(eK.element1) && (eK.element1 == eKp1.element1 || eK.element1 == eKp1.element2)) {
                 T.add(eK.element1);
             }
-            if (eK.element2 != null && !T.contains(eK.element2) && (eK.element2 == eKp1.element2 || eK.element2 == eKp1.element1)) {
+            if (eK.element2 != null && !T.contains(eK.element2)
+                    && (eK.element2 == eKp1.element2 || eK.element2 == eKp1.element1)) {
                 T.add(eK.element2);
             }
         }
@@ -2793,7 +2806,8 @@ public class QMorph extends GeomBasics {
         // From the swapToAndSetElementsFor(..) method, eJ has already got its
         // adjacent triangles. So everything should be juuuuust fine by now...
         Msg.debug(
-                "Leaving recoverEdge(Edge e): returns edge " + eJ.descr() + " with element1= " + eJ.element1.descr() + " and element2= " + eJ.element2.descr());
+                "Leaving recoverEdge(Edge e): returns edge " + eJ.descr() + " with element1= " + eJ.element1.descr()
+                        + " and element2= " + eJ.element2.descr());
         return eJ;
     }
 

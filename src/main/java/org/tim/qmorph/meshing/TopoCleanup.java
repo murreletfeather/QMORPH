@@ -1,6 +1,5 @@
 package org.tim.qmorph.meshing;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,7 @@ import org.tim.qmorph.viewer.Msg;
  * TODO: All good, but: - Why do I now see so little effect from class
  * GlobalSmooth???
  *
- * @author Karl Erik Levik
+ * @author TIM
  *
  */
 // ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
@@ -383,7 +382,8 @@ public class TopoCleanup extends GeomBasics {
             }
         }
 
-        if ((q1 != null && q2 == null) || (q1 != null && q2 != null && (badAlt1 < badAlt2 || (badAlt1 == badAlt2 && irrAlt1 <= irrAlt2)))) {
+        if ((q1 != null && q2 == null)
+                || (q1 != null && q2 != null && (badAlt1 < badAlt2 || (badAlt1 == badAlt2 && irrAlt1 <= irrAlt2)))) {
 
             Msg.debug("...alt1 preferred, q1: " + q1.descr());
             deleteList.add(null);
@@ -782,10 +782,12 @@ public class TopoCleanup extends GeomBasics {
     static final boolean[] stdVertexCase1 = { true, false, true, false, false, true, false, true, false, false }; // ok...
     static final byte[] stdComp1 = { 4, 5, 1, 9 };
     static final byte[] stdCase2a = { 14, 6, 14, 24, 4, 3, 4, 24, 14, 3, 24, 3, 24, 3 };
-    static final boolean[] stdVertexCase2a = { false, true, false, false, false, true, false, false, true, false, true, false }; // ok...
+    static final boolean[] stdVertexCase2a = { false, true, false, false, false, true, false, false, true, false, true,
+            false }; // ok...
     static final byte[] stdComp2a = { 22, 2, 1, 5, 2, 1, 8, 2, 1, 0, 2, 1, 0, 5, 0, 2, 1, 2, 0, 1, 9, 5 };
     static final byte[] stdCase2b = { 14, 6, 24, 3, 4, 3, 24, 3, 4, 0, 4, 0, 4, 3 };
-    static final boolean[] stdVertexCase2b = { true, false, false, false, true, false, false, true, false, true, false, false }; // ok...
+    static final boolean[] stdVertexCase2b = { true, false, false, false, true, false, false, true, false, true, false,
+            false }; // ok...
     static final byte[] stdComp2b = { 9, 5, 1, 2, 1, 5, 1, 0, 5 };
     static final byte[] stdCase3a = { 12, 5, 24, 3, 4, 0, 4, 0, 4, 0, 4, 3 };
     static final boolean[] stdVertexCase3a = { true, false, false, true, false, true, false, true, false, false }; // ok...
@@ -961,7 +963,8 @@ public class TopoCleanup extends GeomBasics {
                     }
                     addNodes(ccwNeighbors, c.pattern[0] - 2);
                 }
-            } else if ((vInd = c.patternMatch(case3, vertexCase3, angles)) != -1 && internalNodes(ipat3, ccwNeighbors, vInd - 2, c.pattern[0] - 2)) {
+            } else if ((vInd = c.patternMatch(case3, vertexCase3, angles)) != -1
+                    && internalNodes(ipat3, ccwNeighbors, vInd - 2, c.pattern[0] - 2)) {
                 Msg.debug("connCleanupStep(): matching case3");
                 d = getDartAt(c, ccwNeighbors, vInd - 2);
                 if (d != null) {
@@ -972,7 +975,8 @@ public class TopoCleanup extends GeomBasics {
                     }
                     addNodes(ccwNeighbors, c.pattern[0] - 2);
                 }
-            } else if ((vInd = c.patternMatch(case4)) != -1 && internalNodes(ipat4, ccwNeighbors, vInd - 2, c.pattern[0] - 2)) {
+            } else if ((vInd = c.patternMatch(case4)) != -1
+                    && internalNodes(ipat4, ccwNeighbors, vInd - 2, c.pattern[0] - 2)) {
                 Msg.debug("connCleanupStep(): matching case4");
                 d = getDartAt(c, ccwNeighbors, vInd - 2);
                 if (d != null) {
@@ -983,7 +987,8 @@ public class TopoCleanup extends GeomBasics {
                     }
                     addNodes(ccwNeighbors, c.pattern[0] - 2);
                 }
-            } else if ((vInd = c.patternMatch(case5)) != -1 && internalNodes(ipat5, ccwNeighbors, vInd - 2, c.pattern[0] - 2)) {
+            } else if ((vInd = c.patternMatch(case5)) != -1
+                    && internalNodes(ipat5, ccwNeighbors, vInd - 2, c.pattern[0] - 2)) {
                 Msg.debug("connCleanupStep(): matching case5");
                 d = getDartAt(c, ccwNeighbors, vInd - 2);
                 if (d != null) {

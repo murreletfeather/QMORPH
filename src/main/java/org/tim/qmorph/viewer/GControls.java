@@ -111,10 +111,11 @@ class GControls extends JPanel {
         stepButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (gui.qm != null) {
-                    gui.qm.run();
+                    gui.qm.step();
                 } else if (gui.tri != null) {
-                    gui.tri.run();
+                    gui.tri.step();
                 }
+                canvas.repaint(); // 自动刷新画布，显示最新网格
             }
         });
         add(stepButton);
