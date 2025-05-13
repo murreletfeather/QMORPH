@@ -1,16 +1,15 @@
 package org.tim.qmorph.viewer;
 
-//finished
 import javax.swing.JFrame;
 
 /**
- * This class outputs messages to the user.
+ * 给用户输出信息
  */
 
 public class Msg {
     public static boolean debugMode = false;
 
-    /** Output an error message and then exit the program. */
+    /** 输出错误信息，然后关闭程序 */
     public static void error(String err) {
         JFrame f = new JFrame();
         MsgDialog errorDialog;
@@ -23,7 +22,7 @@ public class Msg {
         System.exit(1);
     }
 
-    /** Output a warning message. */
+    /** 输出警告信息 */
     public static void warning(String warn) {
         if (debugMode) {
             System.out.println("警告: " + warn);

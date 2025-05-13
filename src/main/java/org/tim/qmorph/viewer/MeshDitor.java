@@ -8,9 +8,8 @@ import org.tim.qmorph.meshing.GeomBasics;
 import org.tim.qmorph.meshing.QMorph;
 
 /**
- * This is the executable class. It has methods for outputting version and help
- * information, and for processing user command line options.
- *
+ * 执行应用的入口，有版本和帮助信息和命令行选项
+ * 
  * @author TIM
  * @version 1.0
  */
@@ -83,19 +82,16 @@ public class MeshDitor {
     }
 
     private static void outputVersion() {
-        System.out.println("MeshDitor v1.0");
+        System.out.println("MeshDitor v2.0");
     }
 
     private static void outputHelp() {
-        System.out.println("USAGE:");
-        System.out.println("  java -jar meshditor.jar {OPTIONS} {MESH FILENAME}");
-        System.out.println("OPTIONS:");
-        System.out.println("  -help       Print version, usage, list these options");
-        System.out.println("              and then exit.");
-        System.out.println("  -version    Print version and exit.");
-        System.out.println("  -noGUI      Do not start GUI, but load the mesh from the");
-        System.out.println("              supplied filename and run QMorph with");
-        System.out.println("              default parameter values. The result is");
-        System.out.println("              written to a file called 'qmesh.dta'.");
+        System.out.println("用法:");
+        System.out.println("  java -jar meshditor.jar {选项} {网格文件名}");
+        System.out.println("选项:");
+        System.out.println("  -help       输出版本、用法和所有可用选项，然后退出。");
+        System.out.println("  -version    输出版本信息并退出。");
+        System.out.println("  -noGUI      不启动图形界面，直接加载指定的网格文件，\n" +
+                "              并用默认参数运行 QMorph。结果会写入 'qmesh.dta' 文件。");
     }
 }

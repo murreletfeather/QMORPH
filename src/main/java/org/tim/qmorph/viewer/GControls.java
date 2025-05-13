@@ -7,8 +7,7 @@ import javax.swing.*;
 import org.tim.qmorph.meshing.GeomBasics;
 
 /**
- * The Panel class with step button, zoom menu, and axis and grid toggle buttons
- * etc.
+ * 包含步进按钮、缩放菜单、坐标轴和网格切换按钮等控件的面板类
  */
 class GControls extends JPanel {
     GUI gui;

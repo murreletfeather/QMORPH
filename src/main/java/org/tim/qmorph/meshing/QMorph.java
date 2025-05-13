@@ -14,13 +14,8 @@ import org.tim.qmorph.viewer.Msg;
 
 // ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
 /**
- * This is the main class, implementing the triangle to quad conversion process.
- * The algorithm was invented by Steven J. Owen, Matthew L. Staten, Scott A.
- * Cannan, and Sunil Saigal and described in their paper "Advancing Front
- * Quadrilateral Meshing Using Triangle Transformations" (1998).
+ * 这是主类，实现了三角形到四边形的转换过程。
  *
- * @see <a href="http://www.andrew.cmu.edu/user/sowen/abstracts/Ow509.html"
- *      TARGET="_top">the abstract of the paper</a>
  * @author TIM
  *
  */

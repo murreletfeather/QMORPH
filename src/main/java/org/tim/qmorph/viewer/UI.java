@@ -5,11 +5,10 @@ import org.tim.qmorph.meshing.GeomBasics;
 import org.tim.qmorph.meshing.QMorph;
 
 /**
- * This class implements the command-line user interface. It reads and
- * interprets command line parameters, sets the corresponding globally available
- * variables, and initiates the main class.
+ * 该类实现了命令行用户界面。它读取并解释命令行参数，
+ * 设置相应的全局可用变量，并启动主类。
  *
- * This implementation only supports 2D triangle meshes.
+ * 当前实现仅支持二维三角形网格。
  *
  * @author TIM
  */

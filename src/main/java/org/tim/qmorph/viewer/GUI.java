@@ -36,7 +36,6 @@ import org.tim.qmorph.meshing.GlobalSmooth;
 import org.tim.qmorph.meshing.QMorph;
 import org.tim.qmorph.meshing.TopoCleanup;
 
-// Add new Swing imports
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -44,10 +43,10 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
-/** This class implements the graphical user interface. */
+/** 实现图形用户接口 */
 public class GUI extends Constants implements ActionListener, ItemListener {
 
-    /** Create frame, set font */
+    /** 创建框架，设置字体 */
     public GUI() {
         f = new JFrame("网格编辑器");
         f.setFont(new Font("Microsoft YaHei", Font.PLAIN, 12));
@@ -55,7 +54,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         GeomBasics.createNewLists();
     }
 
-    /** Create frame, set font, instantiate QMorph */
+    /** 创建框架，设置字体，实例化 QMorph */
     public GUI(String dir, String filename) {
         f = new JFrame("网格编辑器: " + filename);
         f.setFont(new Font("Microsoft YaHei", Font.PLAIN, 12));
@@ -67,22 +66,22 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         GeomBasics.findExtremeNodes();
     }
 
-    /** The filename of the current mesh. */
+    /** 当前网格的文件名 */
     public String filename;
-    /** Boolean indicating that we are currently defining nodes. */
+    /** 布尔值，表示我们当前是否在定义节点 */
     public boolean nodeMode = false;
-    /** Boolean indicating that we are currently defining triangles. */
+    /** 布尔值，表示我们当前是否在定义三角形 */
     public boolean triangleMode = true;
-    /** Boolean indicating that we are currently defining quads. */
+    /** 布尔值，表示我们当前是否在定义四边形 */
     public boolean quadMode = false;
-    /** Boolean indicating visibility for the grid */
+    /** 布尔值，表示网格是否可见 */
     public boolean grid = true;
-    /** Boolean indicating visibility for the axis */
+    /** 布尔值，表示轴是否可见 */
     public boolean axis = true;
 
-    /** Pointer to an instance of the QMorph class. */
+    /** 指向 QMorph 类的一个实例 */
     public QMorph qm = null;
-    /** Pointer to an instance of the DelaunayMeshGen class. */
+    /** 指向 DelaunayMeshGen 类的一个实例 */
     public DelaunayMeshGen tri = null;
 
     JFrame f;

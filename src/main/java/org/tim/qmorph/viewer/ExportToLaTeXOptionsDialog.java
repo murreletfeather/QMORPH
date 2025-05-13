@@ -1,6 +1,5 @@
 package org.tim.qmorph.viewer;
 
-
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Container;
@@ -14,9 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * This class supports exporting of meshes to LaTeX format. Make sure you
- * include include both packages epic and eepic in the header of your LaTeX
- * document.
+ * 这个类支持导出Latex格式，要求在Latex文档头部引入epic和eepic两个包以支持图形绘制
  */
 public class ExportToLaTeXOptionsDialog extends Dialog {
     boolean okState = false;
@@ -49,7 +46,8 @@ public class ExportToLaTeXOptionsDialog extends Dialog {
         corrContainer.add(yCorrLabel = new Label("Offset for y coordinates: "), 2);
         corrContainer.add(yCorr = new TextField("0", 4), "East", 3);
 
-        nodesContainer.add(nodes = new Checkbox("Visible nodes (diameter of each node is 0.1 units)", true), "Center", 0);
+        nodesContainer.add(nodes = new Checkbox("Visible nodes (diameter of each node is 0.1 units)", true), "Center",
+                0);
 
         buttonContainer.add(ok = new Button("OK"), "West", 0);
         buttonContainer.add(cancel = new Button("Cancel"), "East", 1);
