@@ -36,10 +36,16 @@ class GControls extends JPanel {
         Font controlFont = new Font(Font.DIALOG, Font.PLAIN, 12);
 
         // 节点计数显示
-        nodesLabel = new JLabel("剩余节点数量: ");
+        nodesLabel = new JLabel("当前节点数量: " + GeomBasics.nodeList.size());
         nodesLabel.setFont(controlFont);
         nodesLabel.setForeground(Color.WHITE);
         add(nodesLabel);
+
+        // 新增：剩余点击次数描述
+        JLabel clickStatusDesc = new JLabel("剩余点击次数: ");
+        clickStatusDesc.setFont(controlFont);
+        clickStatusDesc.setForeground(Color.WHITE);
+        add(clickStatusDesc);
 
         clickStatus = new JLabel("3");
         clickStatus.setFont(controlFont);

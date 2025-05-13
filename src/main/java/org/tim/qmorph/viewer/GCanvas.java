@@ -1,25 +1,26 @@
 package org.tim.qmorph.viewer;
 
-import java.awt.Canvas;
+import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.BasicStroke;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.awt.Dimension;
 
 import org.tim.qmorph.geom.Edge;
 import org.tim.qmorph.geom.Node;
 import org.tim.qmorph.meshing.GeomBasics;
+import javax.swing.JPanel;
 
 /**
  * The Canvas class which paints the background grid, the nodes, the edges etc.
  */
 
-class GCanvas extends Canvas {
+class GCanvas extends JPanel {
     GUI gui;
 
     double xmin, ymin, xmax, ymax;
@@ -34,6 +35,7 @@ class GCanvas extends Canvas {
     public GCanvas(GUI gui, int scale) {
         this.gui = gui;
         this.scale = scale;
+        setBackground(Color.BLACK); // 设置背景为黑色
 
         // 设置默认的坐标范围
         xmin = -10.0;
@@ -77,6 +79,8 @@ class GCanvas extends Canvas {
         gridIncr = (int) (this.scale / 1.0);
 
         setSize(width, height);
+        setPreferredSize(new Dimension(width, height));
+        revalidate();
 
         double ymaxXscale = ymax * this.scale, xminXscale = xmin * this.scale;
         double rounded_ymaxXscale = signOf(ymax)
@@ -97,6 +101,7 @@ class GCanvas extends Canvas {
         this.ymin = ymin;
         this.xmax = xmax;
         this.ymax = ymax;
+        setBackground(Color.BLACK); // 设置背景为黑色
 
         // 获取父容器的大小
         if (getParent() != null) {
@@ -134,6 +139,8 @@ class GCanvas extends Canvas {
         gridIncr = (int) (this.scale / 1.0);
 
         setSize(width, height);
+        setPreferredSize(new Dimension(width, height));
+        revalidate();
 
         double ymaxXscale = ymax * this.scale, xminXscale = xmin * this.scale;
         double rounded_ymaxXscale = signOf(ymax)
@@ -170,21 +177,16 @@ class GCanvas extends Canvas {
     public void setScale(int scale) {
         this.scale = scale;
         gridIncr = (int) (scale / 1.0);
-
-        // 计算新的尺寸，考虑边距
         int w = (int) ((xmax - xmin) * scale * 1.1) + 2 * gridIncr; // 增加10%的边距
         int h = (int) ((ymax - ymin) * scale * 1.1) + 2 * gridIncr;
-
-        // 确保尺寸至少和父容器一样大
         if (getParent() != null) {
             w = Math.max(w, getParent().getWidth());
             h = Math.max(h, getParent().getHeight());
         }
-
         width = w;
         height = h;
-
-        setSize(width, height);
+        setPreferredSize(new Dimension(width, height));
+        revalidate();
 
         double ymaxXscale = ymax * scale, xminXscale = xmin * scale;
         double rounded_ymaxXscale = signOf(ymax)
@@ -207,8 +209,9 @@ class GCanvas extends Canvas {
         this.ymin = ymin;
         this.xmax = xmax;
         this.ymax = ymax;
-
         setScale(scale);
+        setPreferredSize(new Dimension(width, height));
+        revalidate();
     }
 
     public void clear() {
@@ -217,7 +220,8 @@ class GCanvas extends Canvas {
 
     // Method for drawing everything
     @Override
-    public void paint(Graphics g) {
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         Edge e;
         Node n;
         List<Node> nodeList = GeomBasics.getNodeList();
@@ -230,15 +234,14 @@ class GCanvas extends Canvas {
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        g2d.clearRect(0, 0, getWidth(), getHeight());
+        // 填充黑色背景
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
 
         // Draw background grid
         if (gui.grid) {
-            // 使用半透明的深色网格
-            g2d.setColor(new Color(80, 80, 80, 160));
+            g2d.setColor(new Color(180, 180, 180, 160)); // 亮灰色网格线
             g2d.setStroke(new BasicStroke(0.8f));
-
-            // 绘制网格线
             for (int i = 0; i < getWidth(); i += gridIncr) {
                 g2d.drawLine(i, 0, i, getHeight());
             }
@@ -346,6 +349,8 @@ class GCanvas extends Canvas {
 
         // 设置新的尺寸
         setSize(width, height);
+        setPreferredSize(new Dimension(width, height));
+        revalidate();
 
         // 根据窗口大小计算合适的缩放比例
         double contentWidth = xmax - xmin;

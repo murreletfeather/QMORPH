@@ -338,6 +338,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y,
                     scale);
             cvas.autoFit();
+            if (gctrls != null && gctrls.nodesLabel != null) {
+                gctrls.nodesLabel.setText("当前节点数量: " + GeomBasics.nodeList.size());
+            }
         }
     }
 
@@ -359,6 +362,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             cvas.resize(GeomBasics.leftmost.x, GeomBasics.lowermost.y, GeomBasics.rightmost.x, GeomBasics.uppermost.y,
                     scale);
             cvas.autoFit();
+            if (gctrls != null && gctrls.nodesLabel != null) {
+                gctrls.nodesLabel.setText("当前节点数量: " + GeomBasics.nodeList.size());
+            }
         }
     }
 
@@ -724,6 +730,10 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             if (!GeomBasics.nodeList.contains(n)) {
                 GeomBasics.nodeList.add(n);
                 lastActionNewNode = true;
+                // 新增：每次添加节点后，更新节点数量显示
+                if (gctrls != null && gctrls.nodesLabel != null) {
+                    gctrls.nodesLabel.setText("当前节点数量: " + GeomBasics.nodeList.size());
+                }
             } else {
                 n = GeomBasics.nodeList.get(GeomBasics.nodeList.indexOf(n));
             }
