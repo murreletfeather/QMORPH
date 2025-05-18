@@ -133,9 +133,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
         fileMenu = new JMenu("文件");
         newItem = new JMenuItem("新建");
+        newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
         loadMeshItem = new JMenuItem("加载网格");
+        loadMeshItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
         loadNodesItem = new JMenuItem("加载节点");
         saveItem = new JMenuItem("保存网格");
+        saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
         saveAsItem = new JMenuItem("网格另存为...");
         saveNodesItem = new JMenuItem("保存节点");
         saveNodesAsItem = new JMenuItem("节点另存为...");

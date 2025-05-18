@@ -17,21 +17,22 @@ import org.tim.qmorph.meshing.QMorph;
 public class MeshDitor {
 
     public static void main(String[] args) {
+        /** 命令行参数计数器 */
         int count = 0;
         String path, dir, filename;
         GUI gui;
         FileOutputStream fos;
-        // Capture Java error messages
+        // 捕获Java错误信息
         try {
             fos = new FileOutputStream("MeshDitor.log");
             MyFilterOutputStream mfops = new MyFilterOutputStream(fos);
             PrintStream pstream = new PrintStream(mfops, true);
             System.setErr(pstream);
         } catch (Exception e) {
-            Msg.error("Can not open file MeshDitor.log (to which errors are logged).");
+            Msg.error("无法打开文件 MeshDitor.log（用于记录错误信息）。");
         }
 
-        // Process command line arguments
+        // 处理命令行参数
         if (args != null) {
             for (count = 0; count < args.length; count++) {
                 if (args[count].equals("-help") || args[count].equals("--help")) {

@@ -8,12 +8,27 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.awt.Font;
 
-/** A class which opens a message dialog box. */
+/**
+ * 消息对话框类。
+ * 用于弹出显示信息、警告或报告的对话框，支持多行文本和滚动。
+ */
 public class MsgDialog extends JDialog {
+    /** 确定按钮 */
     JButton ok;
+    /** 显示消息内容的文本区域 */
     JTextArea textArea;
+    /** 布局管理器 */
     GridBagLayout gridbag;
 
+    /**
+     * 构造方法，创建消息对话框。
+     * 
+     * @param f     父窗口
+     * @param title 对话框标题
+     * @param text  显示的消息内容
+     * @param x     文本区列数（宽度）
+     * @param y     文本区行数（高度）
+     */
     public MsgDialog(JFrame f, String title, String text, int x, int y) {
         super(f, title, true);
 
