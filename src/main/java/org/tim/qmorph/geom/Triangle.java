@@ -3,16 +3,29 @@ package org.tim.qmorph.geom;
 import org.tim.qmorph.viewer.Msg;
 
 /**
- * A class holding information for triangles, and with methods for the handling
- * of issues regarding triangles.
+ * 三角形类，保存三角形的相关信息，并提供处理三角形相关操作的方法。
+ * 继承自Element类。
  */
 public class Triangle extends Element {
 
     /**
-     * Creates a triangle (vertices are orientated CCW).
+     * 创建一个三角形（顶点按逆时针排列）。
+     *
+     * @param edge1      边1
+     * @param edge2      边2
+     * @param edge3      边3
+     * @param len1       边1长度
+     * @param len2       边2长度
+     * @param len3       边3长度
+     * @param ang1       角1
+     * @param ang2       角2
+     * @param ang3       角3
+     * @param lengthsOpt 是否跳过长度更新
+     * @param anglesOpt  是否跳过角度更新
      */
-    public Triangle(Edge edge1, Edge edge2, Edge edge3, double len1, double len2, double len3, double ang1, double ang2, double ang3, boolean lengthsOpt,
-                    boolean anglesOpt) {
+    public Triangle(Edge edge1, Edge edge2, Edge edge3, double len1, double len2, double len3, double ang1, double ang2,
+            double ang3, boolean lengthsOpt,
+            boolean anglesOpt) {
         edgeList = new Edge[3];
 
         edgeList[0] = edge1;
@@ -52,7 +65,11 @@ public class Triangle extends Element {
     }
 
     /**
-     * Creates a triangle (vertices are orientated CCW).
+     * 创建一个三角形（顶点按逆时针排列）。
+     *
+     * @param edge1 边1
+     * @param edge2 边2
+     * @param edge3 边3
      */
     public Triangle(Edge edge1, Edge edge2, Edge edge3) {
         edgeList = new Edge[3];
@@ -84,7 +101,11 @@ public class Triangle extends Element {
         updateAngles();
     }
 
-    // Makes a copy of the given triangle
+    /**
+     * 复制构造函数，生成三角形的副本。
+     * 
+     * @param t 要复制的三角形
+     */
     private Triangle(Triangle t) {
         edgeList = new Edge[3];
 
@@ -112,6 +133,13 @@ public class Triangle extends Element {
     // The Edge.repleceNode(..) method updates the edge length.
     // *Not tested!!!*
 
+    /**
+     * 用于节点替换，返回替换节点后的新三角形。
+     * 
+     * @param original    原节点
+     * @param replacement 替换节点
+     * @return 替换节点后的新三角形
+     */
     @Override
     public Element elementWithExchangedNodes(Node original, Node replacement) {
         Node node1 = edgeList[0].leftNode;
@@ -163,9 +191,13 @@ public class Triangle extends Element {
         return t;
     }
 
-    // Return true if the quad becomes inverted when node n is relocated to pos.
-    // (x,y).
-    // Else return false.
+    /**
+     * 判断将节点n1移动到n2后，三角形是否会反转。
+     * 
+     * @param n1 被移动的节点
+     * @param n2 新位置节点
+     * @return 反转返回true，否则返回false
+     */
     @Override
     public boolean invertedWhenNodeRelocated(Node n1, Node n2) {
         Msg.debug("Entering Triangle.invertedWhenNodeRelocated(..)");
@@ -227,27 +259,52 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 获取指定边和节点对应的角度。
+     * 
+     * @param e 边
+     * @param n 节点
+     * @return 角度值
+     */
     @Override
     public double angle(Edge e, Node n) {
         return ang[angleIndex(e, neighborEdge(n, e))];
     }
 
+    /**
+     * 获取两条边之间的角度。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @return 角度值
+     */
     @Override
     public double angle(Edge e1, Edge e2) {
         return ang[angleIndex(e1, e2)];
     }
 
+    /**
+     * 更新三角形的边长和角度。
+     */
     public void updateAttributes() {
         updateLengths();
         updateAngles();
     }
 
+    /**
+     * 更新三角形的三条边的长度。
+     */
     public void updateLengths() {
         edgeList[0].len = edgeList[0].computeLength();
         edgeList[1].len = edgeList[1].computeLength();
         edgeList[2].len = edgeList[2].computeLength();
     }
 
+    /**
+     * 更新与指定节点相关的角度。
+     * 
+     * @param n 节点
+     */
     @Override
     public void updateAngle(Node n) {
         int j = angleIndex(n), i;
@@ -270,6 +327,9 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 更新三角形的所有角度。
+     */
     @Override
     public void updateAngles() {
         int i;
@@ -283,6 +343,12 @@ public class Triangle extends Element {
         ang[i] = edgeList[2].computeCCWAngle(edgeList[0]);
     }
 
+    /**
+     * 判断三角形是否包含指定的边。
+     * 
+     * @param e 边
+     * @return 包含返回true，否则返回false
+     */
     @Override
     public boolean hasEdge(Edge e) {
         if (edgeList[0] == e || edgeList[1] == e || edgeList[2] == e) {
@@ -292,6 +358,12 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 判断三角形是否包含指定的节点。
+     * 
+     * @param n 节点
+     * @return 包含返回true，否则返回false
+     */
     @Override
     public boolean hasNode(Node n) {
         if (edgeList[0].hasNode(n) || edgeList[1].hasNode(n) || edgeList[2].hasNode(n)) {
@@ -301,7 +373,12 @@ public class Triangle extends Element {
         }
     }
 
-    // Return an Edge of this Triangle that is not Edge e.
+    /**
+     * 返回三角形中除指定边外的另一条边。
+     * 
+     * @param e 指定的边
+     * @return 另一条边
+     */
     public Edge otherEdge(Edge e) {
         if (edgeList[0] != e) {
             return edgeList[0];
@@ -316,7 +393,13 @@ public class Triangle extends Element {
         }
     }
 
-    // Return the Edge of this Triangle that is not one of Edges e1 or e2.
+    /**
+     * 返回三角形中除指定两条边外的第三条边。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @return 第三条边
+     */
     public Edge otherEdge(Edge e1, Edge e2) {
         if ((edgeList[0] == e1 && edgeList[1] == e2) || (edgeList[1] == e1 && edgeList[0] == e2)) {
             return edgeList[2];
@@ -330,7 +413,12 @@ public class Triangle extends Element {
         }
     }
 
-    // Returns neighbor element sharing edge e
+    /**
+     * 获取与该三角形共享指定边的相邻元素。
+     * 
+     * @param e 边
+     * @return 相邻元素
+     */
     @Override
     public Element neighbor(Edge e) {
         if (e.element1 == this) {
@@ -343,8 +431,13 @@ public class Triangle extends Element {
         }
     }
 
-    // Returns the other edge belonging to this triangle that also share Node n
-    // Returns null if not found
+    /**
+     * 获取与指定节点和边相邻的另一条边。
+     * 
+     * @param n 节点
+     * @param e 边
+     * @return 邻边
+     */
     @Override
     public Edge neighborEdge(Node n, Edge e) {
         if (edgeList[0] != e && edgeList[0].hasNode(n)) {
@@ -359,6 +452,12 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 获取指定边在三角形中的索引。
+     * 
+     * @param e 边
+     * @return 索引（0-2），未找到返回-1
+     */
     @Override
     public int indexOf(Edge e) {
         if (edgeList[0] == e) {
@@ -373,6 +472,13 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 获取两条边在角度数组中的索引。
+     * 
+     * @param e1Index 边1索引
+     * @param e2Index 边2索引
+     * @return 角度索引
+     */
     public int angleIndex(int e1Index, int e2Index) {
         // angle betw. edges 0 && 1
         if ((e1Index == 0 && e2Index == 1) || (e1Index == 1 && e2Index == 0)) {
@@ -386,6 +492,12 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 获取与指定节点相关的角度索引。
+     * 
+     * @param n 节点
+     * @return 角度索引
+     */
     @Override
     public int angleIndex(Node n) {
         // angle betw. edges 0 && 1
@@ -401,11 +513,24 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 获取两条边在角度数组中的索引。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @return 角度索引
+     */
     @Override
     public int angleIndex(Edge e1, Edge e2) {
         return angleIndex(indexOf(e1), indexOf(e2));
     }
 
+    /**
+     * 获取与指定节点相对的边。
+     * 
+     * @param n 节点
+     * @return 对边
+     */
     public Edge oppositeOfNode(Node n) {
         if (edgeList[0].hasNode(n) && edgeList[1].hasNode(n)) {
             return edgeList[2];
@@ -419,6 +544,12 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 获取与指定边相对的节点。
+     * 
+     * @param e 边
+     * @return 对节点
+     */
     public Node oppositeOfEdge(Edge e) {
         if (edgeList[0] == e) {
             if (!e.hasNode(edgeList[1].leftNode)) {
@@ -444,8 +575,9 @@ public class Triangle extends Element {
         }
     }
 
-    // Make the Element pointers in each of the Edges in this Triangle's edgeList
-    // point to this Triangle.
+    /**
+     * 让三角形的三条边都指向该三角形。
+     */
     @Override
     public void connectEdges() {
         edgeList[0].connectToTriangle(this);
@@ -453,8 +585,9 @@ public class Triangle extends Element {
         edgeList[2].connectToTriangle(this);
     }
 
-    // Release the element pointer of each Edge in edgeList that pointed to this
-    // Element.
+    /**
+     * 断开三角形三条边与该三角形的连接。
+     */
     @Override
     public void disconnectEdges() {
         edgeList[0].disconnectFromElement(this);
@@ -462,11 +595,12 @@ public class Triangle extends Element {
         edgeList[2].disconnectFromElement(this);
     }
 
-    // Return the next ccw edge in this triangle.
-    // Get the pos angles between e1 and each of the other two edges. Transform
-    // these
-    // angles into true angles. The largest angle indicates that this edge is ccw to
-    // e1.
+    /**
+     * 获取三角形中指定边的下一个逆时针方向的边。
+     * 
+     * @param e1 当前边
+     * @return 下一个逆时针边
+     */
     public Edge nextCCWEdge(Edge e1) {
         Node e1commone2, e1commone3;
         Edge e2, e3;
@@ -512,6 +646,12 @@ public class Triangle extends Element {
         }
     }
 
+    /**
+     * 获取三角形中指定边的下一个顺时针方向的边。
+     * 
+     * @param e1 当前边
+     * @return 下一个顺时针边
+     */
     public Edge nextCWEdge(Edge e1) {
         Node e1commone2, e1commone3;
         Edge e2, e3;
@@ -566,7 +706,11 @@ public class Triangle extends Element {
         }
     }
 
-    // We simply check that the nodes of the element are not collinear.
+    /**
+     * 判断三角形面积是否大于0。
+     * 
+     * @return 面积大于0返回true，否则返回false
+     */
     @Override
     public boolean areaLargerThan0() {
         Node na = edgeList[0].leftNode;
@@ -585,13 +729,20 @@ public class Triangle extends Element {
          */
     }
 
-    // Check if the old pos and the new pos of the node are on different sides
-    // of the nodes opposite edge.
+    /**
+     * 判断将节点从oldN移动到newN后三角形是否反转。
+     * 
+     * @param oldN 原节点
+     * @param newN 新节点
+     * @return 反转返回true，否则返回false
+     */
     public boolean inverted(Node oldN, Node newN) {
         Edge e = oppositeOfNode(newN);
         // Check with edge e:
-        double oldN_e_det = (e.leftNode.x - oldN.x) * (e.rightNode.y - oldN.y) - (e.leftNode.y - oldN.y) * (e.rightNode.x - oldN.x);
-        double newN_e_det = (e.leftNode.x - newN.x) * (e.rightNode.y - newN.y) - (e.leftNode.y - newN.y) * (e.rightNode.x - newN.x);
+        double oldN_e_det = (e.leftNode.x - oldN.x) * (e.rightNode.y - oldN.y)
+                - (e.leftNode.y - oldN.y) * (e.rightNode.x - oldN.x);
+        double newN_e_det = (e.leftNode.x - newN.x) * (e.rightNode.y - newN.y)
+                - (e.leftNode.y - newN.y) * (e.rightNode.x - newN.x);
 
         // If different sign, or 0, they are inverted:
         if (oldN_e_det >= 0) {
@@ -606,7 +757,11 @@ public class Triangle extends Element {
         return false;
     }
 
-    // Return true if the triangle has become inverted
+    /**
+     * 判断三角形是否反转。
+     * 
+     * @return 反转返回true，否则返回false
+     */
     @Override
     public boolean inverted() {
         Node a, b, c;
@@ -625,7 +780,11 @@ public class Triangle extends Element {
         }
     }
 
-    // Return true if the triangle has become inverted or the area is zero
+    /**
+     * 判断三角形是否反转或面积为零。
+     * 
+     * @return 反转或零面积返回true，否则返回false
+     */
     @Override
     public boolean invertedOrZeroArea() {
         Node a, b, c;
@@ -644,7 +803,11 @@ public class Triangle extends Element {
         }
     }
 
-    // Return true if the triangle area is zero.
+    /**
+     * 判断三角形面积是否为零。
+     * 
+     * @return 零面积返回true，否则返回false
+     */
     public boolean zeroArea() {
         Node a, b, c;
         a = firstNode;
@@ -661,18 +824,33 @@ public class Triangle extends Element {
         }
     }
 
-    // Triangles don't have concavities, so return false.
+    /**
+     * 三角形没有凹点，始终返回false。
+     * 
+     * @param n 节点
+     * @return false
+     */
     @Override
     public boolean concavityAt(Node n) {
         return false;
     }
 
+    /**
+     * 替换三角形中的某条边。
+     * 
+     * @param e           原边
+     * @param replacement 替换边
+     */
     @Override
     public void replaceEdge(Edge e, Edge replacement) {
         edgeList[indexOf(e)] = replacement;
     }
 
-    // Returns an edge that is on the boundary. Returns null if not found.
+    /**
+     * 获取三角形中一条边界边（element2为null）。
+     * 
+     * @return 边界边，若无则返回null
+     */
     public Edge getBoundaryEdge() {
         if (edgeList[0].element2 == null) {
             return edgeList[0];
@@ -686,12 +864,9 @@ public class Triangle extends Element {
     }
 
     /**
-     * Update the distortion metric according to the article "An approach to
-     * Combined Laplacian and Optimization-Based Smoothing for Triangular,
-     * Quadrilateral and Quad-Dominant Meshes" by by Cannan, Tristano, and Staten.
-     *
-     * return negative values for inverted triangles, else positive. Equilateral
-     *         triangles will return the maximum value of 1.
+     * 更新三角形的畸变度量。
+     * 参考文献：An approach to Combined Laplacian and Optimization-Based Smoothing for
+     * Triangular, Quadrilateral and Quad-Dominant Meshes
      */
     @Override
     public void updateDistortionMetric() {
@@ -699,14 +874,15 @@ public class Triangle extends Element {
     }
 
     /**
-     * See updateDistortionMetric().
-     *
-     * return negative values for inverted triangles, else positive.
+     * 更新三角形的畸变度量。
+     * 
+     * @param factor 畸变因子
      */
     public void updateDistortionMetric(double factor) {
         Msg.debug("Entering Triangle.updateDistortionMetric(..)");
         double AB = edgeList[0].len, CB = edgeList[1].len, CA = edgeList[2].len;
-        Node a = edgeList[2].commonNode(edgeList[0]), b = edgeList[0].commonNode(edgeList[1]), c = edgeList[2].commonNode(edgeList[1]);
+        Node a = edgeList[2].commonNode(edgeList[0]), b = edgeList[0].commonNode(edgeList[1]),
+                c = edgeList[2].commonNode(edgeList[1]);
         MyVector vCA = new MyVector(c, a), vCB = new MyVector(c, b);
 
         double temp = factor * Math.abs(vCA.cross(vCB)) / (CA * CA + AB * AB + CB * CB);
@@ -718,7 +894,11 @@ public class Triangle extends Element {
         Msg.debug("Leaving Triangle.updateDistortionMetric(..): " + distortionMetric);
     }
 
-    // Return the size of the largest angle
+    /**
+     * 获取三角形的最大角度。
+     * 
+     * @return 最大角度
+     */
     @Override
     public double largestAngle() {
         double cand = ang[0];
@@ -731,7 +911,11 @@ public class Triangle extends Element {
         return cand;
     }
 
-    // Return the node at the largest interior angle
+    /**
+     * 获取三角形最大内角对应的节点。
+     * 
+     * @return 最大内角节点
+     */
     @Override
     public Node nodeAtLargestAngle() {
         Node candNode = edgeList[0].leftNode;
@@ -749,14 +933,22 @@ public class Triangle extends Element {
         return candNode;
     }
 
-    // Return the length of the longest Edge
+    /**
+     * 获取三角形最长边的长度。
+     * 
+     * @return 最长边长度
+     */
     @Override
     public double longestEdgeLength() {
         double temp = Math.max(edgeList[0].len, edgeList[1].len);
         return Math.max(temp, edgeList[2].len);
     }
 
-    // Return the longest Edge
+    /**
+     * 获取三角形最长的边。
+     * 
+     * @return 最长边
+     */
     public Edge longestEdge() {
         Edge temp;
         if (edgeList[0].len > edgeList[1].len) {
@@ -772,7 +964,9 @@ public class Triangle extends Element {
         }
     }
 
-    // Set the color of the edges to green.
+    /**
+     * 将三角形的三条边颜色标记为合法（绿色）。
+     */
     @Override
     public void markEdgesLegal() {
         edgeList[0].color = java.awt.Color.green;
@@ -780,7 +974,9 @@ public class Triangle extends Element {
         edgeList[2].color = java.awt.Color.green;
     }
 
-    // Set the color of the edges to red.
+    /**
+     * 将三角形的三条边颜色标记为非法（红色）。
+     */
     @Override
     public void markEdgesIllegal() {
         edgeList[0].color = java.awt.Color.red;
@@ -788,6 +984,11 @@ public class Triangle extends Element {
         edgeList[2].color = java.awt.Color.red;
     }
 
+    /**
+     * 获取三角形的字符串描述。
+     * 
+     * @return 描述字符串
+     */
     @Override
     public String descr() {
         Node node1, node2, node3;
@@ -801,6 +1002,9 @@ public class Triangle extends Element {
         return node1.descr() + ", " + node2.descr() + ", " + node3.descr();
     }
 
+    /**
+     * 打印三角形的描述信息。
+     */
     @Override
     public void printMe() {
         if (inverted()) {
@@ -811,6 +1015,11 @@ public class Triangle extends Element {
 
     }
 
+    /**
+     * 获取三角形的字符串描述。
+     * 
+     * @return 描述字符串
+     */
     @Override
     public String toString() {
         return descr();

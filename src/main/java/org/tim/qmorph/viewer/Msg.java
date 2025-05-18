@@ -5,7 +5,6 @@ import javax.swing.JFrame;
 /**
  * 给用户输出信息
  */
-
 public class Msg {
     public static boolean debugMode = false;
 

@@ -11,46 +11,40 @@ import org.tim.qmorph.geom.Quad;
 import org.tim.qmorph.geom.Triangle;
 import org.tim.qmorph.viewer.Msg;
 
-// ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
 /**
- * This class constitutes a simple implementation of the cleanup process as
- * outlined by Paul Kinney: "CleanUp: Improving Quadrilateral Finite Element
- * Meshes" (1997). Please note that this is not a complete and accurate
- * implementation, as it had to be somewhat adapted to work with the Q-Morph
- * implementation. E.g. the size cleanup is not implemented. Neither is cleaning
- * up bowties and the mesh topology inspection. Furthermore, the number of
- * cleanup patterns is limited to those described in Kinney's paper.<br>
- * <br>
- * TODO<br>
- * Draw all cases and test them. The ones running correctly: Connectivity -
- * stdCase1a - stdCase1b - stdCase2a - stdCase2b - stdCase3a - stdCase3b -
- * case1a og case1b - case2 - case3 - case4 - case5
- *
- * Boundary: - diamond - case1 - case2 - case3 - case4 - boundary angle > 150
- * degrees with one and two row transition
- *
- * Shape: - case1 - case2
- *
- * TODO: All good, but: - Why do I now see so little effect from class
- * GlobalSmooth???
+ * 拓扑清理类，实现了基于Paul Kinney论文的四边形网格清理算法。
+ * 包含前沿消除、连通性修复、边界修复、形状修复等主要操作。
+ * 适用于Q-Morph生成的四边形主导网格。
  *
  * @author TIM
- *
  */
-// ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
-
 public class TopoCleanup extends GeomBasics {
-
+    /**
+     * 构造方法，初始化TopoCleanup对象。
+     */
     public TopoCleanup() {
     }
 
-    /** A dart used when traversing the mesh in cleanup operations. */
+    /**
+     * 网格遍历用的Dart对象。
+     */
     private Dart d;
+    /**
+     * 当前处理计数。
+     */
     int count = 0;
+    /**
+     * 需要删除的元素列表。
+     */
     List<Element> deleteList;
+    /**
+     * 当前所有节点的列表。
+     */
     List<Node> nodes;
 
-    /** Initialize the object */
+    /**
+     * 初始化对象，准备清理操作。
+     */
     public void init() {
         Quad q;
         Triangle tri;
@@ -91,7 +85,9 @@ public class TopoCleanup extends GeomBasics {
         d = new Dart();
     }
 
-    /** Main loop for global topological clean-up */
+    /**
+     * 全局拓扑清理主循环。
+     */
     public void run() {
         Msg.debug("Entering TopoCleanup.run()");
 
@@ -161,7 +157,9 @@ public class TopoCleanup extends GeomBasics {
 
     private int passNum = 0;
 
-    /** Method for stepping through the implementation one step at the time. */
+    /**
+     * 步进执行清理，每次处理一个阶段。
+     */
     @Override
     public void step() {
         Msg.debug("Entering TopoCleanup.step()");
@@ -210,7 +208,9 @@ public class TopoCleanup extends GeomBasics {
         Msg.debug("Leaving TopoCleanup.step()");
     }
 
-    /** Initial pass to detect and cleanup chevrons. */
+    /**
+     * 检查并消除chevron结构。
+     */
     private void elimChevsStep() {
         Msg.debug("Entering TopoCleanup.elimChevsStep()");
 
@@ -254,12 +254,9 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * The chevron is deleted along with one of its neighbors. A new node is created
-     * and the deleted quads are replaced with three new ones surrounding the new
-     * node. The neighbor chosen for deletion is the one that, when replaced by the
-     * new quads, yields the optimal node valences.
-     *
-     * @param q the chevron to be eliminated
+     * 消除chevron结构，重构局部网格。
+     * 
+     * @param q 需要消除的chevron四边形
      */
     private void eliminateChevron(Quad q) {
         Msg.debug("Entering eliminateChevron(..)");
@@ -417,16 +414,13 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * Combine with neighbor and fill with "fill_3" as defined in the paper by
-     * P.Kinney Note that the method doesn't remove q and its neighbor from
-     * elementList.
-     *
-     * @param q    the first quad
-     * @param e    the edge which is adjacent to both q and its neighbor
-     * @param n    a node belonging to q, e, and one of the three new edges to be
-     *             created
-     * @param safe boolean indicating whether a safe pos must be attempted for the
-     *             new node
+     * 合并相邻四边形并用fill_3填充。
+     * 
+     * @param q    第一个四边形
+     * @param e    公共边
+     * @param n    相关节点
+     * @param safe 是否采用安全位置
+     * @return 新的Dart对象
      */
     private Dart fill3(Quad q, Edge e, Node n, boolean safe) {
         Msg.debug("Entering TopoCleanup.fill3(..)");
@@ -534,13 +528,12 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * Combine with neighbor and fill with "fill_4" as defined in paper by P.Kinney
-     * Note that the method doesn't remove q and its neighbor from elementList.
-     *
-     * @param q  the first of the two quads to be combined
-     * @param e  the common edge of q and the second quad
-     * @param n2 one of the nodes of edge e and whose opposite node in q will not
-     *           get connected to any new edge.
+     * 合并相邻四边形并用fill_4填充。
+     * 
+     * @param q  第一个四边形
+     * @param e  公共边
+     * @param n2 相关节点
+     * @return 新的Dart对象
      */
     private Dart fill4(Quad q, Edge e, Node n2) {
         Msg.debug("Entering TopoCleanup.fill4(..)");
@@ -700,6 +693,12 @@ public class TopoCleanup extends GeomBasics {
      *                  <li>Code 8 for switching cur. edge clockwise
      *                  <li>Code 9 for switching cur. edge counter-clockwise
      */
+    /**
+     * 应用复合操作。
+     *
+     * @param startDart 起始的Dart对象
+     * @param fillPat   填充模式字节数组
+     */
     private void applyComposition(Dart startDart, byte[] fillPat) {
         Msg.debug("Entering applyComposition(..)");
         byte a;
@@ -836,7 +835,9 @@ public class TopoCleanup extends GeomBasics {
     static final boolean[] bpat4 = { true, true, false, true, true, true, false, true };
     static final byte[] bcomp4 = { 7, 1, 2, 1, 5, 1, 8 };
 
-    /** Perform one more step of connectivity cleanup. */
+    /**
+     * 连通性修复步骤。
+     */
     private void connCleanupStep() {
         Msg.debug("Entering TopoCleanup.connCleanupStep()");
         int i, vInd;
@@ -1008,7 +1009,15 @@ public class TopoCleanup extends GeomBasics {
         Msg.debug("Leaving TopoCleanup.connCleanupStep(), all is well");
     }
 
-    /** Method to confirm whether marked nodes are truely internal . */
+    /**
+     * 判断指定节点序列是否全为内部节点。
+     * 
+     * @param ipat     标记数组
+     * @param ccwNodes 节点数组
+     * @param index    起始索引
+     * @param len      长度
+     * @return 是否全为内部节点
+     */
     private boolean internalNodes(boolean[] ipat, Node[] ccwNodes, int index, int len) {
         Msg.debug("Entering internalNodes(..)");
         int i = index, j = 0;
@@ -1027,6 +1036,12 @@ public class TopoCleanup extends GeomBasics {
         return true;
     }
 
+    /**
+     * 向nodes列表添加新节点。
+     * 
+     * @param arrayOfNodes 节点数组
+     * @param len          长度
+     */
     private void addNodes(Node[] arrayOfNodes, int len) {
         Node n;
         int j;
@@ -1051,7 +1066,9 @@ public class TopoCleanup extends GeomBasics {
     private boolean bcaseValPat4Fin = false;
     private boolean bcaseDiamondFin = false;
 
-    /** Perform one more steps of boundary cleanup. */
+    /**
+     * 边界修复步骤。
+     */
     private void boundaryCleanupStep() {
         Msg.debug("Entering TopoCleanup.boundaryCleanupStep()");
         int i, j, index;
@@ -1393,7 +1410,9 @@ public class TopoCleanup extends GeomBasics {
 
     private boolean shape1stTypeFin = false;
 
-    /** The shape cleanup */
+    /**
+     * 形状修复步骤。
+     */
     private void shapeCleanupStep() {
         Msg.debug("Entering TopoCleanup.shapeCleanupStep()");
 
@@ -1578,12 +1597,12 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * Return the dart with node c, the edge connecting c and the node at pos. i in
-     * neighbors, and the quad with that edge and node at pos. i+1
-     *
-     * @param c         the central node
-     * @param neighbors array of neighboring nodes to c
-     * @param i         index into neighbors
+     * 获取指定节点和邻居的Dart对象。
+     * 
+     * @param c         中心节点
+     * @param neighbors 邻居节点数组
+     * @param i         索引
+     * @return Dart对象
      */
     private Dart getDartAt(Node c, Node[] neighbors, int i) {
         Msg.debug("Entering getDartAt(..)");
@@ -1607,16 +1626,13 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * Collapse a quad by joining two and two of its consecutive edges.
-     *
-     * @param q        the quad to be collapsed
-     * @param e1       an edge of q that has the node nK
-     * @param nK       the node that is to be joined with its opposite node in q
-     * @param centroid boolean indicating whether to look for a new pos for the
-     *                 joined nodes somewhere between the original positions,
-     *                 starting at the centroid of q, or to unconditionally try
-     *                 using the position of the node in q which is opposite to nK.
-     * @return the new current dart.
+     * 合并四边形，闭合操作。
+     * 
+     * @param q        四边形
+     * @param e1       边
+     * @param nK       节点
+     * @param centroid 是否采用重心
+     * @return 新的Dart对象
      */
     private Dart closeQuad(Quad q, Edge e1, Node nK, boolean centroid) {
         Msg.debug("Entering closeQuad(..)");
@@ -1668,12 +1684,12 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * Create a new quad by "opening" one at the specified node inside the specified
-     * quad. This effectively results in a splitting of the specified quad.
-     *
-     * @param q  the quad
-     * @param e  an edge in q (not used by method), but contained in returned dart
-     * @param n1 split q along the diagonal between n1 and its opposite node
+     * 打开四边形，分裂操作。
+     * 
+     * @param q  四边形
+     * @param e  边
+     * @param n1 节点
+     * @return 新的Dart对象
      */
     private Dart openQuad(Quad q, Edge e, Node n1) {
         Msg.debug("Entering openQuad(..)");
@@ -1730,14 +1746,12 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * Create 2 new quads from 2 specified quads, in which the common edge of the
-     * given quads has been rotated one step in the CCW direction. Delete the old
-     * quads.
-     *
-     * @param qa  one of the two quads adjacent the edge to be switched, e1a
-     * @param e1a the edge to be switched
-     * @param n   one of e1a's nodes
-     * @return a dart representing the input dart after the operation is performed.
+     * 逆时针切换对角线，生成新四边形。
+     * 
+     * @param qa  四边形1
+     * @param e1a 公共边
+     * @param n   节点
+     * @return 新的Dart对象
      */
     private Dart switchDiagonalCCW(Quad qa, Edge e1a, Node n) {
         Msg.debug("Entering switchDiagonalCCW(..)");
@@ -1871,14 +1885,12 @@ public class TopoCleanup extends GeomBasics {
     }
 
     /**
-     * Create 2 new quads from 2 specified quads, in which the common edge of the
-     * given quads has been rotated one step in the CW direction. Delete the old
-     * quads. Update the nodes list.
-     *
-     * @param qa  one of the two quads adjacent the edge to be switched, e1a
-     * @param e1a the edge to be switched
-     * @param n   one of e1a's nodes
-     * @return a dart representing the input dart after the operation is performed.
+     * 顺时针切换对角线，生成新四边形。
+     * 
+     * @param qa  四边形1
+     * @param e1a 公共边
+     * @param n   节点
+     * @return 新的Dart对象
      */
     private Dart switchDiagonalCW(Quad qa, Edge e1a, Node n) {
         Msg.debug("Entering switchDiagonalCW(..)");
@@ -2002,6 +2014,9 @@ public class TopoCleanup extends GeomBasics {
         return d;
     }
 
+    /**
+     * 全局平滑操作。
+     */
     private void globalSmooth() {
         Msg.debug("Entering TopoCleanup.globalSmoth()");
         Node n, nn, nOld;

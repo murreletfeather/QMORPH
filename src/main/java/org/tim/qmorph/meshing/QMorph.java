@@ -12,26 +12,43 @@ import org.tim.qmorph.geom.Ray;
 import org.tim.qmorph.geom.Triangle;
 import org.tim.qmorph.viewer.Msg;
 
-// ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
 /**
  * 这是主类，实现了三角形到四边形的转换过程。
+ * 负责网格前沿推进、四边形生成、缝合、平滑等主要操作。
  *
  * @author TIM
- *
  */
-// ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
-
 public class QMorph extends GeomBasics {
+    /**
+     * 构造方法，初始化QMorph对象。
+     */
     public QMorph() {
     }
 
+    /**
+     * 当前所有前沿边的列表。
+     */
     private List<Edge> frontList;
+    /**
+     * 标记算法是否已完成。
+     */
     private boolean finished = false;
+    /**
+     * 当前处理的层级（前沿推进的层数）。
+     */
     private int level = 0;
+    /**
+     * 当前最低层前沿边的数量。
+     */
     private int nrOfFronts = 0;
+    /**
+     * 初始前沿边数量是否为偶数。
+     */
     private boolean evenInitNrOfFronts = false;
 
-    /** Initialize the class */
+    /**
+     * 初始化类，准备前沿、清理、平滑等操作。
+     */
     public void init() {
 
         if (leftmost == null || lowermost == null || rightmost == null || uppermost == null) {
@@ -79,7 +96,9 @@ public class QMorph extends GeomBasics {
         }
     }
 
-    /** Run the implementation on the given triangle mesh */
+    /**
+     * 在给定的三角网格上运行主算法流程。
+     */
     public void run() {
         if (doTri2QuadConversion) {
             if (!step) {
@@ -110,7 +129,9 @@ public class QMorph extends GeomBasics {
         }
     }
 
-    /** Step through the morphing process one front edge at the time. */
+    /**
+     * 逐步推进前沿，每次处理一条前沿边，生成四边形并更新状态。
+     */
     @Override
     public void step() {
         Quad q;
@@ -189,27 +210,24 @@ public class QMorph extends GeomBasics {
         }
     }
 
-    /** @return the frontList, that is, the list of front edges */
+    /**
+     * 获取当前的前沿边列表。
+     * 
+     * @return 前沿边的列表
+     */
     public List<Edge> getFrontList() {
         return frontList;
     }
 
     /**
-     * Count the number of front edges in the new loops created if we were to create
-     * a new quad with edge b as base edge and one or both of edges l and r were
-     * promoted to front edges and one or both of their top nodes were located on
-     * the front. Return a byte signifying which, if any, of these loops contains an
-     * odd number of edges.
-     *
-     * @param b     the base edge of the quad we want to make. Should be a front
-     *              edge.
-     * @param l     the left edge of the quad we want to make
-     * @param r     the right edge of the quad we want to make
-     * @param lLoop boolean indicating whether to count the edges in the loop at l
-     * @param rLoop boolean indicating whether to count the edges in the loop at r
-     * @return a bit pattern indicating which, if any, of the resulting front loops
-     *         that have an odd number of edges. Also indicate if the two loops are
-     *         actually the same.
+     * 统计新生成的前沿环中前沿边的奇偶性。
+     * 
+     * @param b     基础边
+     * @param l     左侧边
+     * @param r     右侧边
+     * @param lLoop 是否统计左侧环
+     * @param rLoop 是否统计右侧环
+     * @return 位模式，指示哪些环为奇数条边，及是否为同一环
      */
     private byte oddNOFEdgesInLoopsWithFEdge(Edge b, Edge l, Edge r, boolean lLoop, boolean rLoop) {
         Msg.debug("Entering oddNOFEdgesInLoopsWithFEdge(..)");
@@ -239,21 +257,13 @@ public class QMorph extends GeomBasics {
         return ret;
     }
 
-    private boolean bothSidesInLoop = false;
-
     /**
-     * Supposing that the edges side and otherSide are promoted to front edges. The
-     * method parses a new loop involving the edges side, otherSide and possibly
-     * edge b. If two separate loops result from promoting the edges side and
-     * otherSide to front edges, then return the number of edges in the loop
-     * involving edges b and side. Otherwise, return the total number of edges in
-     * the loop involving edges side and otherSide.
-     *
-     * @param b         an edge that is considered for being promoted to a front
-     *                  edge
-     * @param side      one of b's front neighbors
-     * @param otherSide the other of b's front neighbors
-     * @return as described above.
+     * 标记两侧边提升为前沿后，统计新环中前沿边数量。
+     * 
+     * @param b         基础边
+     * @param side      一侧边
+     * @param otherSide 另一侧边
+     * @return 新环中前沿边数量
      */
     private int countFrontsInNewLoopAt(Edge b, Edge side, Edge otherSide) {
         Msg.debug("Entering countFrontsInNewLoopAt(..)");
@@ -362,7 +372,12 @@ public class QMorph extends GeomBasics {
         return count;
     }
 
-    /** Returns the number of front edges at the currently lowest level loop(s). */
+    /**
+     * 统计当前最低层前沿边的数量。
+     * 
+     * @param frontList2 前沿边列表
+     * @return 最低层前沿边数量
+     */
     private int countNOFrontsAtCurLowestLevel(List<Edge> frontList2) {
         Msg.debug("Entering countNOFrontsAtCurLowestLevel(..)");
 
@@ -388,7 +403,12 @@ public class QMorph extends GeomBasics {
         return count;
     }
 
-    /** Make sure the triangle mesh consists exclusively of triangles */
+    /**
+     * 检查三角网格是否全为三角形。
+     * 
+     * @param triangleList 三角形列表
+     * @return 是否全为三角形
+     */
     private boolean verifyTriangleMesh(List<Triangle> triangleList) {
         // Object o;
         // for (Object element : triangleList) {
@@ -401,10 +421,10 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * Construct a new quad
-     *
-     * @param e the base edge of this new quad
-     * @return the new quad
+     * 构造一个新的四边形。
+     * 
+     * @param e 作为基础边的前沿边
+     * @return 新生成的四边形对象
      */
     private Quad makeQuad(Edge e) {
         Msg.debug("Entering makeQuad(..)");
@@ -510,13 +530,14 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * @param nK     front node to be smoothed
-     * @param nJ     node behind the front, connected to nK
-     * @param myQ    an arbitrary selected quad connected to node nK
-     * @param front1 a front edge adjacent nK
-     * @param front2 another front edge adjacent nK and part of the same loop as
-     *               front1
-     * @return a new node with the smoothed position
+     * 平滑前沿节点，返回平滑后新节点。
+     * 
+     * @param nK     前沿节点
+     * @param nJ     后方节点
+     * @param myQ    相关四边形
+     * @param front1 前沿边1
+     * @param front2 前沿边2
+     * @return 平滑后新节点
      */
     private Node smoothFrontNode(Node nK, Node nJ, Quad myQ, Edge front1, Edge front2) {
         Msg.debug("Entering smoothFrontNode(..)...");
@@ -603,12 +624,11 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * Calculate smoothed position of node. (Called from localSmooth)
-     *
-     * @see #smoothFrontNode(Node, Node, Quad, Edge, Edge)
-     * @see Node#modifiedLWLaplacianSmooth()
-     * @param n Node to be smoothed
-     * @param q Quad to which n belongs
+     * 计算节点的平滑位置。
+     * 
+     * @param n 需要平滑的节点
+     * @param q 所属四边形
+     * @return 平滑后新节点
      */
     Node getSmoothedPos(Node n, Quad q) {
         Msg.debug("Entering getSmoothedPos(..)");
@@ -713,8 +733,10 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * Smooth as explained in Owen's paper Each node in the newly formed quad is
-     * smoothed. So is every node directly connected to these.
+     * 对新生成的四边形及其相邻节点进行局部平滑。
+     * 
+     * @param q          新生成的四边形
+     * @param frontList2 当前前沿边列表
      */
     private void localSmooth(Quad q, List<Edge> frontList2) {
         Msg.debug("Entering localSmooth(..)");
@@ -918,10 +940,10 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * Delete all interior triangles within the edges of this quad
-     *
-     * @param q    the quad
-     * @param tris the list of triangles to be deleted
+     * 删除四边形内部的所有三角形。
+     * 
+     * @param q    四边形
+     * @param tris 需要删除的三角形列表
      */
     private void clearQuad(Quad q, ArrayList<?> tris) {
         Msg.debug("Entering clearQuad(Quad q)...");
@@ -978,8 +1000,10 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * "Virus" that removes all triangles and their edges and nodes inside of this
-     * quad Assumes that only triangles are present, not quads, inside of q
+     * 删除四边形内部的所有三角形（递归方式）。
+     * 
+     * @param q     四边形
+     * @param first 起始三角形
      */
     private void clearQuad(Quad q, Triangle first) {
         Msg.debug("Entering clearQuad(Quad q)...");
@@ -1047,7 +1071,14 @@ public class QMorph extends GeomBasics {
         Msg.debug("Leaving clearQuad(Quad q)...");
     }
 
-    /** Updates fronts in fake quads (which are triangles, really) */
+    /**
+     * 更新假四边形（实际为三角形）中的前沿边。
+     * 
+     * @param q           假四边形
+     * @param lowestLevel 当前最低层级
+     * @param frontList2  前沿边列表
+     * @return 被移除的最低层前沿边数量
+     */
     private int localFakeUpdateFronts(Quad q, int lowestLevel, List<Edge> frontList2) {
         Msg.debug("Entering localFakeUpdateFronts()...");
         int curLevelEdgesRemoved = 0;
@@ -1169,7 +1200,12 @@ public class QMorph extends GeomBasics {
         return curLevelEdgesRemoved;
     }
 
-    // Do some neccessary updating of the fronts before localSmooth(..) is run
+    /**
+     * 平滑前的前沿边更新。
+     * 
+     * @param q         四边形
+     * @param frontList 前沿边列表
+     */
     private void preSmoothUpdateFronts(Quad q, List<Edge> frontList) {
         Msg.debug("Entering preSmoothUpdateFronts()...");
         q.edgeList[top].setFrontNeighbors(frontList);
@@ -1177,10 +1213,12 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * Define new fronts, remove old ones. Set new frontNeighbors. Reclassify front
-     * edges.
-     *
-     * @return nr of edges removed that belonged to the currently lowest level.
+     * 局部更新前沿边，处理新旧前沿的替换。
+     * 
+     * @param q           新生成的四边形
+     * @param lowestLevel 当前最低层级
+     * @param frontList2  前沿边列表
+     * @return 被移除的最低层前沿边数量
      */
     private int localUpdateFronts(Quad q, int lowestLevel, List<Edge> frontList2) {
         if (q.isFake) {
@@ -1342,6 +1380,12 @@ public class QMorph extends GeomBasics {
         }
     }
 
+    /**
+     * 定义初始前沿边。
+     * 
+     * @param edgeList 所有边的列表
+     * @return 初始前沿边列表
+     */
     private List<Edge> defineInitFronts(List<Edge> edgeList) {
         List<Edge> frontList = new ArrayList<>();
         for (Edge e : edgeList) {
@@ -1372,13 +1416,25 @@ public class QMorph extends GeomBasics {
         return frontList;
     }
 
+    /**
+     * 对所有前沿边进行状态分类。
+     * 
+     * @param frontList2 前沿边列表
+     */
     private void classifyStateOfAllFronts(List<Edge> frontList2) {
         for (Edge e : frontList2) {
             e.classifyStateOfFrontEdge();
         }
     }
 
-    /** Performs seaming operation as described in Owen's paper */
+    /**
+     * 执行缝合操作，将两条边合并为一个四边形。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @param nK 公共节点
+     * @return 缝合后生成的四边形
+     */
     private Quad doSeam(Edge e1, Edge e2, Node nK) {
         Msg.warning("Entering doSeam(..)...");
         Quad e1Quad = e1.getQuadElement();
@@ -1531,7 +1587,14 @@ public class QMorph extends GeomBasics {
         return q;
     }
 
-    /** Performs the transition seam operation as described in Owen's paper. */
+    /**
+     * 执行过渡缝合操作。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @param nK 公共节点
+     * @return 过渡缝合生成的四边形
+     */
     private Quad doTransitionSeam(Edge e1, Edge e2, Node nK) {
         Msg.debug("Entering doTransitionSeam(..)");
         Edge longer, shorter;
@@ -1775,7 +1838,14 @@ public class QMorph extends GeomBasics {
         return q2New; // This quad will be added to elementList shortly.
     }
 
-    /** Performs the transition split operation as described in Owen's paper. */
+    /**
+     * 执行过渡分裂操作。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @param nK 公共节点
+     * @return 过渡分裂生成的四边形
+     */
     private Quad doTransitionSplit(Edge e1, Edge e2, Node nK) {
         Msg.debug("Entering doTransitionSplit(..)");
         Edge longer, shorter;
@@ -1929,6 +1999,14 @@ public class QMorph extends GeomBasics {
         return q12New; // ...so that q12New will be smoothed and updated as well.
     }
 
+    /**
+     * 判断是否可以进行缝合操作。
+     * 
+     * @param n  节点
+     * @param e1 边1
+     * @param e2 边2
+     * @return 是否可以缝合
+     */
     private boolean canSeam(Node n, Edge e1, Edge e2) {
         Node n1 = e1.otherNode(n);
         Node n2 = e1.otherNode(n);
@@ -1941,12 +2019,13 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * Check wether a seam operation is needed.
-     *
-     * @param e1 an edge
-     * @param e2 an edge that might need to be merged with e1
-     * @param n  the common Node of e1 and e2
-     * @param nQ number of Quads adjacent to Node n
+     * 判断是否需要缝合操作。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @param n  公共节点
+     * @param nQ 邻接四边形数量
+     * @return 是否需要缝合
      */
     private boolean needsSeam(Edge e1, Edge e2, Node n, int nQ) {
         Msg.debug("Entering needsSeam(..)");
@@ -1982,9 +2061,10 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * @return not null if a special case was encountered. If so, this means that
-     *         that the base edge has been destroyed, and that a new one has to be
-     *         chosen.
+     * 处理特殊情况，返回特殊四边形。
+     * 
+     * @param e 基础边
+     * @return 特殊情况生成的四边形，若无则返回null
      */
     private Quad handleSpecialCases(Edge e) {
         Msg.debug("Entering handleSpecialCases(..)");
@@ -2161,7 +2241,13 @@ public class QMorph extends GeomBasics {
         return sideEdges;
     }
 
-    /** @return a list of potential side edges for this base edge at node n */
+    /**
+     * 获取某节点作为一端的所有可能侧边。
+     * 
+     * @param baseEdge 基础边
+     * @param n        节点
+     * @return 可能的侧边列表
+     */
     private List<Edge> getPotSideEdges(Edge baseEdge, Node n) {
         Edge cur;
         List<Edge> list = new ArrayList<>();
@@ -2183,10 +2269,14 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * @param eF1    the base edge of the quad to be created
-     * @param nK     the node at eF1 that the side edge will be connected to
-     * @param altRSE list of candidate edges from which we might select a side edge
-     * @return A side edge: a reused edge OR one created in a swap/split operation
+     * 选择或生成一条合适的侧边。
+     * 
+     * @param eF1       基础边
+     * @param nK        节点
+     * @param leftSide  已选左侧边
+     * @param rightSide 已选右侧边
+     * @param altRSE    候选侧边列表
+     * @return 选定或新生成的侧边
      */
     private Edge defineSideEdge(Edge eF1, Node nK, Edge leftSide, Edge rightSide, List<Edge> altRSE) {
         Edge selected = null, closest, eF2;
@@ -2512,14 +2602,11 @@ public class QMorph extends GeomBasics {
     }
 
     /**
-     * Create an edge from nC to nD, or if it already exists, return that edge.
-     * Remove all edges intersected by the new edge. This is accomplished through a
-     * swapping procedure. All local and "global" updating is taken care of.
-     *
-     * @param nC the start node
-     * @param nD the end node
-     * @return null if the Edge could not be recovered. This might happen when the
-     *         line segment from nC to nD intersects a Quad or a boundary Edge.
+     * 恢复或新建一条连接nC和nD的边。
+     * 
+     * @param nC 起点
+     * @param nD 终点
+     * @return 新建或已存在的边，若失败返回null
      */
     private Edge recoverEdge(Node nC, Node nD) {
         Msg.debug("Entering recoverEdge(Node, Node)...");
@@ -2805,5 +2892,10 @@ public class QMorph extends GeomBasics {
                         + " and element2= " + eJ.element2.descr());
         return eJ;
     }
+
+    /**
+     * 标记：两侧是否属于同一环。
+     */
+    private boolean bothSidesInLoop = false;
 
 } // End of class QMorph

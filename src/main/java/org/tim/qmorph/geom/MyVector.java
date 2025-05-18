@@ -1,7 +1,5 @@
 package org.tim.qmorph.geom;
 
-
-
 /*
 import Ray;
 import Constants;
@@ -13,20 +11,32 @@ import org.tim.qmorph.meshing.Constants;
 import org.tim.qmorph.viewer.Msg;
 
 /**
- * This class holds information for vectors, and has methods for dealing with
- * vector-related issues.
+ * 表示一个二维向量。
+ * 该类继承自Constants，提供了向量的基本操作和属性。
+ * 向量由原点(origin)和x、y分量组成。
+ * 
+ * @author Tim
  */
-
 public class MyVector extends Constants {
 
+    /** 向量的原点 */
     public final Node origin;
-    public double x, y;
+
+    /** 向量的x分量 */
+    public double x;
+
+    /** 向量的y分量 */
+    public double y;
+
+    /** 与向量关联的边 */
     public Edge edge;
 
     /**
-     * @param origin the origin of the vector
-     * @param x      the x component
-     * @param y      the y component
+     * 通过给定的原点和x、y分量构造一个向量。
+     * 
+     * @param origin 向量的原点
+     * @param x      向量的x分量
+     * @param y      向量的y分量
      */
     public MyVector(Node origin, double x, double y) {
         this.origin = origin;
@@ -37,8 +47,8 @@ public class MyVector extends Constants {
     /**
      * "Convert" a ray into a vector.
      *
-     * @param r      a ray (we use the origin and direction found in this ray)
-     * @param length the length of the vector
+     * @param r      一个射线（我们使用射线中的原点和方向）
+     * @param length 向量的长度
      */
     public MyVector(Ray r, double length) {
         origin = r.origin;
@@ -252,7 +262,8 @@ public class MyVector extends Constants {
 
     /** Return true if the cross product is greater than zero */
     public boolean newcross(MyVector v) {
-        BigDecimal d0x = new BigDecimal(x), d0y = new BigDecimal(y), d1x = new BigDecimal(v.x), d1y = new BigDecimal(v.y);
+        BigDecimal d0x = new BigDecimal(x), d0y = new BigDecimal(y), d1x = new BigDecimal(v.x),
+                d1y = new BigDecimal(v.y);
         BigDecimal d0Xd1 = d0x.multiply(d1y).subtract(d1x.multiply(d0y));
         if (d0Xd1.compareTo(zero) == 1) {
             return true;
@@ -421,7 +432,8 @@ public class MyVector extends Constants {
                 if (d0.origin.x != d1.origin.x || d0.origin.x != d1.origin.x + d1.x) {
                     double d0sx = d0.origin.x, d0ex = d0.origin.x + d0.x;
                     double d1sx = d1.origin.x, d1ex = d1.origin.x + d1.x;
-                    if ((d0sx < d1sx && d0sx < d1ex && d0ex < d1sx && d0ex < d1ex) || (d0sx > d1sx && d0sx > d1ex && d0ex > d1sx && d0ex > d1ex)) {
+                    if ((d0sx < d1sx && d0sx < d1ex && d0ex < d1sx && d0ex < d1ex)
+                            || (d0sx > d1sx && d0sx > d1ex && d0ex > d1sx && d0ex > d1ex)) {
                         return false;
                     } else {
                         return true;
@@ -429,7 +441,8 @@ public class MyVector extends Constants {
                 } else { // ...no, use y instead
                     double d0sy = d0.origin.y, d0ey = d0.origin.y + d0.y;
                     double d1sy = d1.origin.y, d1ey = d1.origin.y + d1.y;
-                    if ((d0sy < d1sy && d0sy < d1ey && d0ey < d1sy && d0ey < d1ey) || (d0sy > d1sy && d0sy > d1ey && d0ey > d1sy && d0ey > d1ey)) {
+                    if ((d0sy < d1sy && d0sy < d1ey && d0ey < d1sy && d0ey < d1ey)
+                            || (d0sy > d1sy && d0sy > d1ey && d0ey > d1sy && d0ey > d1ey)) {
                         return false;
                     } else {
                         return true;

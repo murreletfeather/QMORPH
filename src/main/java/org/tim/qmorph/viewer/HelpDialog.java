@@ -8,9 +8,14 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.awt.Font;
 
-/** A class which opens a "help" dialog window. */
+/**
+ * 帮助对话框类。
+ * 用于显示网格编辑器的使用帮助信息。
+ */
 public class HelpDialog extends JDialog {
+    /** 确定按钮 */
     JButton ok;
+    /** 文本区域 */
     JTextArea textArea;
     GridBagLayout gridbag;
     String text = "网格编辑器使用帮助\n\n" +
@@ -31,6 +36,11 @@ public class HelpDialog extends JDialog {
             "- Ctrl+S：保存\n" +
             "- Ctrl+Q：退出\n";
 
+    /**
+     * 构造一个帮助对话框。
+     * 
+     * @param f 父窗口，对话框将相对于此窗口居中显示
+     */
     public HelpDialog(JFrame f) {
         super(f, "网格编辑器帮助", true);
 

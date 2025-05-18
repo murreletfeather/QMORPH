@@ -43,10 +43,15 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
-/** 实现图形用户接口 */
+/**
+ * 实现图形用户接口，负责网格的可视化、交互与操作。
+ * 支持节点、三角形、四边形的编辑与显示，集成QMorph、Delaunay、平滑、拓扑清理等功能。
+ */
 public class GUI extends Constants implements ActionListener, ItemListener {
 
-    /** 创建框架，设置字体 */
+    /**
+     * 创建框架，设置字体。
+     */
     public GUI() {
         f = new JFrame("网格编辑器");
         f.setFont(new Font("Microsoft YaHei", Font.PLAIN, 12));
@@ -54,7 +59,12 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         GeomBasics.createNewLists();
     }
 
-    /** 创建框架，设置字体，实例化 QMorph */
+    /**
+     * 创建框架，设置字体，实例化 QMorph。
+     * 
+     * @param dir      网格文件目录
+     * @param filename 网格文件名
+     */
     public GUI(String dir, String filename) {
         f = new JFrame("网格编辑器: " + filename);
         f.setFont(new Font("Microsoft YaHei", Font.PLAIN, 12));
@@ -107,7 +117,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
     MenuShortcut qkey;
 
-    /** Start up the GUI. */
+    /**
+     * 启动GUI，初始化窗口、菜单、画布等。
+     */
     public void startGUI() {
         f.setSize(width, height);
         f.setLocationRelativeTo(null);
@@ -310,6 +322,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         f.setVisible(true);
     }
 
+    /**
+     * 新建网格，重置所有数据。
+     */
     void commandNew() {
         GeomBasics.clearLists();
         GeomBasics.setParams(null, ".", false, false);
@@ -320,6 +335,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         qm = null;
     }
 
+    /**
+     * 加载网格文件。
+     */
     void commandLoadMesh() {
         FileDialog fd = new FileDialog(f, "Load mesh from file", FileDialog.LOAD);
         fd.setDirectory(GeomBasics.meshDirectory);
@@ -344,6 +362,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 加载节点文件。
+     */
     void commandLoadNodes() {
         FileDialog fd = new FileDialog(f, "Load nodes from file", FileDialog.LOAD);
         fd.setDirectory(GeomBasics.meshDirectory);
@@ -368,6 +389,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 保存网格到当前文件。
+     */
     void commandSaveMesh() {
         if (filename == null || filename == "") {
             commandSaveMeshAs();
@@ -376,6 +400,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 保存节点到当前文件。
+     */
     void commandSaveNodes() {
         if (filename == null || filename == "") {
             commandSaveNodesAs();
@@ -384,6 +411,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 节点另存为。
+     */
     void commandSaveNodesAs() {
         FileDialog fd = new FileDialog(f, "Save nodes to file", FileDialog.SAVE);
         fd.setDirectory(GeomBasics.meshDirectory);
@@ -398,6 +428,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 网格另存为。
+     */
     void commandSaveMeshAs() {
         FileDialog fd = new FileDialog(f, "Save mesh to file", FileDialog.SAVE);
         fd.setDirectory(GeomBasics.meshDirectory);
@@ -412,6 +445,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 三角网格另存为。
+     */
     void commandSaveTriangleMeshAs() {
         FileDialog fd = new FileDialog(f, "Save triangle mesh to file", FileDialog.SAVE);
         fd.setDirectory(GeomBasics.meshDirectory);
@@ -425,6 +461,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 导出网格到LaTeX文件。
+     */
     void commandExportMeshToLaTeX() {
         int ul;
         double xcorr, ycorr;
@@ -449,16 +488,25 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 撤销上一步操作。
+     */
     void commandUndo() {
         myMouseListener.undo();
         cvas.repaint();
     }
 
+    /**
+     * 清除所有边。
+     */
     void commandClearEdges() {
         GeomBasics.clearEdges();
         cvas.repaint();
     }
 
+    /**
+     * 切换到节点模式。
+     */
     void commandNodeMode() {
         nodeMode = true;
         triangleMode = false;
@@ -469,6 +517,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         gctrls.clickStatus.setText("1");
     }
 
+    /**
+     * 切换到三角形模式。
+     */
     void commandTriMode() {
         nodeMode = false;
         triangleMode = true;
@@ -479,6 +530,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         gctrls.clickStatus.setText("3");
     }
 
+    /**
+     * 切换到四边形模式。
+     */
     void commandQuadMode() {
         nodeMode = false;
         triangleMode = false;
@@ -489,6 +543,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         gctrls.clickStatus.setText("4");
     }
 
+    /**
+     * 切换调试模式。
+     */
     void commandToggleDebugMode() {
         if (Msg.debugMode) {
             Msg.debugMode = false;
@@ -499,6 +556,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 切换步进模式。
+     */
     void commandToggleStepMode() {
         if (GeomBasics.step) {
             GeomBasics.step = false;
@@ -509,6 +569,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 运行QMorph算法。
+     */
     void commandQMorph() {
         QMorphOptionsDialog qmod = new QMorphOptionsDialog(f);
         qmod.setSize(qmod.getPreferredSize());
@@ -530,6 +593,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 运行Delaunay三角剖分。
+     */
     void commandDelaunay() {
         tri = new DelaunayMeshGen();
         tri.init(true); // false
@@ -549,6 +615,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 运行拓扑清理。
+     */
     void commandTopoCleanup() {
         if (GeomBasics.topoCleanup == null) {
             GeomBasics.topoCleanup = new TopoCleanup();
@@ -561,6 +630,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * 运行全局平滑。
+     */
     void commandSmooth() {
         if (GeomBasics.globalSmooth == null) {
             GeomBasics.globalSmooth = new GlobalSmooth();
@@ -572,8 +644,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     }
 
     /**
-     * Invoked when a registered item change occurs. The item is identified, and the
-     * corresponding action is invoked.
+     * 处理菜单项/按钮的状态变化。
+     * 
+     * @param e 事件对象
      */
     @Override
     public void itemStateChanged(ItemEvent e) {
@@ -592,8 +665,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     }
 
     /**
-     * Invoked when a registered action command occurs. The command is identified,
-     * and the corresponding action is invoked.
+     * 处理菜单项/按钮的动作事件。
+     * 
+     * @param e 事件对象
      */
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -675,7 +749,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         }
     }
 
-    /** A class for handling mouse actions. */
+    /**
+     * 鼠标事件监听器，处理节点、边、元素的交互。
+     */
     class MyMouseListener extends MouseAdapter implements MouseMotionListener {
         Node movingNode = null, oldMovingNode = null;
         int nodeCnt = 0;
@@ -700,10 +776,11 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         double oldX = 0, oldY = 0;
         int nONewEdges = 0;
 
-        public MyMouseListener() {
-        }
-
-        /** Invoked when the mouse has been clicked on a component. */
+        /**
+         * 鼠标点击事件，处理节点、边、三角形、四边形的创建。
+         * 
+         * @param e 鼠标事件
+         */
         @Override
         public void mouseClicked(MouseEvent e) {
             // 如果是右键点击，不执行任何操作
@@ -893,7 +970,11 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             Msg.debug("Leaving mouseClicked(..)");
         }
 
-        /** Invoked when the mouse is dragged. */
+        /**
+         * 鼠标拖动事件，处理节点移动和画布平移。
+         * 
+         * @param e 鼠标事件
+         */
         @Override
         public void mouseDragged(MouseEvent e) {
             if (isPanning) {
@@ -937,7 +1018,11 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             }
         }
 
-        /** Invoked when a mouse button is pressed. */
+        /**
+         * 鼠标按下事件，处理节点选中和画布平移。
+         * 
+         * @param e 鼠标事件
+         */
         @Override
         public void mousePressed(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON3) {
@@ -974,7 +1059,11 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             Msg.debug("Leaving mousePressed(..)");
         }
 
-        /** Invoked when a mouse button is released. */
+        /**
+         * 鼠标释放事件，处理节点合并、移动等。
+         * 
+         * @param e 鼠标事件
+         */
         @Override
         public void mouseReleased(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON3) {
@@ -1079,7 +1168,9 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             Msg.debug("Leaving mouseReleased(..)");
         }
 
-        /** Undo the last mouse action. */
+        /**
+         * 撤销上一次鼠标操作。
+         */
         public void undo() {
             Edge e;
             int j;
@@ -1155,6 +1246,11 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
     }
 
+    /**
+     * 更新缩放比例显示。
+     * 
+     * @param percentage 当前缩放百分比
+     */
     public void updateScale(int percentage) {
         if (gctrls != null) {
             gctrls.scaleCombo.setSelectedItem(percentage + "%");

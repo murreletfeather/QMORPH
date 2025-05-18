@@ -6,13 +6,24 @@ import java.util.List;
 import org.tim.qmorph.viewer.Msg;
 
 /**
- * A class holding information for quadrilaterals, and with methods for the
- * handling of issues regarding quads.
+ * 四边形类，保存四边形的相关信息，并提供处理四边形相关操作的方法。
+ * 继承自Element类。
  */
-
 public class Quad extends Element {
 
-    /** Create ordinary quad */
+    /**
+     * 是否为假四边形（用于特殊情况）。
+     */
+    public boolean isFake;
+
+    /**
+     * 创建普通四边形。
+     * 
+     * @param baseEdge  底边
+     * @param leftEdge  左边
+     * @param rightEdge 右边
+     * @param topEdge   顶边
+     */
     public Quad(Edge baseEdge, Edge leftEdge, Edge rightEdge, Edge topEdge) {
         Edge e;
         Node b, c;
@@ -46,8 +57,9 @@ public class Quad extends Element {
     }
 
     /**
-     * Create ordinary quad. Use Edge e's two elements (Triangles) as basis. Not
-     * tested thoroughly!!!
+     * 通过一条公共边和其两侧三角形生成普通四边形。
+     * 
+     * @param e 公共边
      */
     public Quad(Edge e) {
         isFake = false;
@@ -115,7 +127,9 @@ public class Quad extends Element {
     }
 
     /**
-     * Create a fake quad with 3 different nodes and edgeList[top]==edgeList[right]
+     * 通过三角形生成假四边形（顶边和右边重合）。
+     * 
+     * @param t 三角形
      */
     public Quad(Triangle t) {
         Node n;
@@ -141,12 +155,11 @@ public class Quad extends Element {
     }
 
     /**
-     * Create a simple quad for testing purposes only (nextCCWNode(),
-     * isStrictlyconvex()). Not tested thoroughly!!!
-     *
-     * @param e  is a diagonal edge
-     * @param n1 the first or the other two nodes in the quad
-     * @param n2 the second of the other two nodes in the quad
+     * 用于测试的简单四边形构造函数。
+     * 
+     * @param e  对角线边
+     * @param n1 四边形的一个节点
+     * @param n2 四边形的另一个节点
      */
     public Quad(Edge e, Node n1, Node n2) {
         Msg.debug("Entering Quad(Edge, Node, Node)");
@@ -175,8 +188,12 @@ public class Quad extends Element {
     }
 
     /**
-     * Constructor to make life easier for elementWithExchangedNode(..) Create fake
-     * quad with only three nodes
+     * 用于elementWithExchangedNode的假四边形构造函数（三节点）。
+     * 
+     * @param n1 节点1
+     * @param n2 节点2
+     * @param n3 节点3
+     * @param f  首节点
      */
     private Quad(Node n1, Node n2, Node n3, Node f) {
         isFake = true;
@@ -197,7 +214,15 @@ public class Quad extends Element {
         updateAngles();
     }
 
-    /** Constructor to make life easier for elementWithExchangedNode(..) */
+    /**
+     * 用于elementWithExchangedNode的普通四边形构造函数（四节点）。
+     * 
+     * @param n1 节点1
+     * @param n2 节点2
+     * @param n3 节点3
+     * @param n4 节点4
+     * @param f  首节点
+     */
     private Quad(Node n1, Node n2, Node n3, Node n4, Node f) {
         isFake = false;
         edgeList = new Edge[4];
@@ -218,8 +243,11 @@ public class Quad extends Element {
     }
 
     /**
-     * Create a simple quad for testing purposes only (constrainedLaplacianSmooth())
-     * Not tested thoroughly!!!
+     * 节点替换，返回替换节点后的新四边形。
+     * 
+     * @param original    原节点
+     * @param replacement 替换节点
+     * @return 替换节点后的新四边形
      */
     @Override
     public Element elementWithExchangedNodes(Node original, Node replacement) {
@@ -283,14 +311,18 @@ public class Quad extends Element {
     }
 
     /**
-     * @return true if the quad becomes inverted when node n1 is relocated to pos.
-     *         n2. Else return false.
+     * 判断将节点n1移动到n2后，四边形是否会反转。
+     * 
+     * @param n1 被移动的节点
+     * @param n2 新位置节点
+     * @return 反转返回true，否则返回false
      */
     @Override
     public boolean invertedWhenNodeRelocated(Node n1, Node n2) {
         Msg.debug("Entering Quad.invertedWhenNodeRelocated(..)");
         Node thisFirstNode = firstNode;
-        Node a = edgeList[base].leftNode, b = edgeList[base].rightNode, c = edgeList[right].otherNode(b), d = edgeList[left].otherNode(a);
+        Node a = edgeList[base].leftNode, b = edgeList[base].rightNode, c = edgeList[right].otherNode(b),
+                d = edgeList[left].otherNode(a);
 
         if (a == n1) {
             a = n2;
@@ -334,19 +366,14 @@ public class Quad extends Element {
     }
 
     /**
-     * Test whether any neighboring elements becomes inverted if the quad is
-     * collapsed in a particular manner.
-     *
-     * @param n     a node holding the position for where the joined nodes are to be
-     *              located
-     * @param n1    the node in quad q that is to be joined with opposite node n2
-     * @param n2    the node in quad q that is to be joined with opposite node n1
-     * @param lK    the list of elements adjacent n1
-     * @param lKOpp the list of elements adjacent n2
-     * @return true if any elements adjacent to quad q becomes inverted when
-     *         collapsing quad q, joining its two opposite nodes n1 and n2 to the
-     *         position held by node n. Node n must be located somewhere inside quad
-     *         q.
+     * 判断在合并节点时，是否有相邻元素会反转。
+     * 
+     * @param n     合并后节点
+     * @param n1    四边形中的一个节点
+     * @param n2    四边形中的另一个节点
+     * @param lK    n1的相邻元素列表
+     * @param lKOpp n2的相邻元素列表
+     * @return 存在反转返回true，否则返回false
      */
     public boolean anyInvertedElementsWhenCollapsed(Node n, Node n1, Node n2, List<Element> lK, List<Element> lKOpp) {
         Msg.debug("Entering Quad.anyInvertedElementsWhenCollapsed(..)");
@@ -373,6 +400,12 @@ public class Quad extends Element {
         return false;
     }
 
+    /**
+     * 判断两个四边形是否相等（节点顺序一致）。
+     * 
+     * @param o 另一个对象
+     * @return 相等返回true，否则返回false
+     */
     @Override
     public boolean equals(Object o) {
         if (o instanceof Quad) {
@@ -399,7 +432,12 @@ public class Quad extends Element {
         }
     }
 
-    /** @return edge's index in this quad's edgeList */
+    /**
+     * 获取指定边在四边形中的索引。
+     * 
+     * @param e 边
+     * @return 索引（0-3），未找到返回-1
+     */
     @Override
     public int indexOf(Edge e) {
         if (edgeList[base] == e) {
@@ -554,11 +592,12 @@ public class Quad extends Element {
     }
 
     /**
-     * Create a new triangle by combining this quad with Triangle t. The two
-     * elements must initially share two incident edges:
-     *
-     * @param e1 first common edge
-     * @param e2 second common edge
+     * 合并四边形和三角形，生成新的三角形。
+     * 
+     * @param t  三角形
+     * @param e1 公共边1
+     * @param e2 公共边2
+     * @return 合并后的新三角形
      */
     public Triangle combine(Triangle t, Edge e1, Edge e2) {
         Msg.debug("Entering Quad.combine(Triangle, ..)");
@@ -598,7 +637,12 @@ public class Quad extends Element {
         return tri;
     }
 
-    /** @return neighbor element sharing edge e */
+    /**
+     * 获取与该四边形共享指定边的相邻元素。
+     * 
+     * @param e 边
+     * @return 相邻元素
+     */
     @Override
     public Element neighbor(Edge e) {
         if (e.element1 == this) {
@@ -612,7 +656,11 @@ public class Quad extends Element {
     }
 
     /**
-     * @return the edge in this quad that is a neighbor of the given node and edge.
+     * 获取与指定节点和边相邻的另一条边。
+     * 
+     * @param n 节点
+     * @param e 边
+     * @return 邻边
      */
     @Override
     public Edge neighborEdge(Node n, Edge e) {
@@ -675,7 +723,12 @@ public class Quad extends Element {
         }
     }
 
-    /** @return an edge in this quad that is a neighbor of the given node. */
+    /**
+     * 获取与指定节点相邻的边。
+     * 
+     * @param n 节点
+     * @return 邻边
+     */
     public Edge neighborEdge(Node n) {
         if (edgeList[base].leftNode == n) {
             return edgeList[base];
@@ -691,6 +744,13 @@ public class Quad extends Element {
         }
     }
 
+    /**
+     * 获取指定边和节点对应的角度。
+     * 
+     * @param e 边
+     * @param n 节点
+     * @return 角度值
+     */
     @Override
     public double angle(Edge e, Node n) {
         // Find this edge's index
@@ -712,6 +772,13 @@ public class Quad extends Element {
         return ang[angleIndex(thisEdgeIndex, otherEdgeIndex)];
     }
 
+    /**
+     * 获取两条边在角度数组中的索引。
+     * 
+     * @param e1Index 边1索引
+     * @param e2Index 边2索引
+     * @return 角度索引
+     */
     public int angleIndex(int e1Index, int e2Index) {
         if ((e1Index == base && e2Index == left) || // angle at base, left
                 (e1Index == left && e2Index == base)) {
@@ -727,11 +794,24 @@ public class Quad extends Element {
         }
     }
 
+    /**
+     * 获取两条边在角度数组中的索引。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @return 角度索引
+     */
     @Override
     public int angleIndex(Edge e1, Edge e2) {
         return angleIndex(indexOf(e1), indexOf(e2));
     }
 
+    /**
+     * 获取与指定节点相关的角度索引。
+     * 
+     * @param n 节点
+     * @return 角度索引
+     */
     @Override
     public int angleIndex(Node n) {
         if (edgeList[base].leftNode == n) {
@@ -748,20 +828,40 @@ public class Quad extends Element {
         }
     }
 
+    /**
+     * 获取两条边之间的角度。
+     * 
+     * @param e1 边1
+     * @param e2 边2
+     * @return 角度值
+     */
     @Override
     public double angle(Edge e1, Edge e2) {
         return ang[angleIndex(indexOf(e1), indexOf(e2))];
     }
 
+    /**
+     * 判断四边形是否包含指定节点。
+     * 
+     * @param n 节点
+     * @return 包含返回true，否则返回false
+     */
     @Override
     public boolean hasNode(Node n) {
-        if (edgeList[base].leftNode.equals(n) || edgeList[base].rightNode.equals(n) || edgeList[top].leftNode.equals(n) || edgeList[top].rightNode.equals(n)) {
+        if (edgeList[base].leftNode.equals(n) || edgeList[base].rightNode.equals(n) || edgeList[top].leftNode.equals(n)
+                || edgeList[top].rightNode.equals(n)) {
             return true;
         } else {
             return false;
         }
     }
 
+    /**
+     * 判断四边形是否包含指定边。
+     * 
+     * @param e 边
+     * @return 包含返回true，否则返回false
+     */
     @Override
     public boolean hasEdge(Edge e) {
         if (edgeList[base] == e || edgeList[left] == e || edgeList[right] == e || edgeList[top] == e) {
@@ -771,8 +871,14 @@ public class Quad extends Element {
         }
     }
 
+    /**
+     * 判断四边形是否为边界四边形。
+     * 
+     * @return 是边界四边形返回true，否则返回false
+     */
     public boolean boundaryQuad() {
-        if (neighbor(edgeList[base]) instanceof Quad || neighbor(edgeList[left]) instanceof Quad || neighbor(edgeList[right]) instanceof Quad
+        if (neighbor(edgeList[base]) instanceof Quad || neighbor(edgeList[left]) instanceof Quad
+                || neighbor(edgeList[right]) instanceof Quad
                 || neighbor(edgeList[top]) instanceof Quad) {
             return true;
         } else {
@@ -781,8 +887,9 @@ public class Quad extends Element {
     }
 
     /**
-     * Method to verify that this quad is a boundary diamond. A boundary diamond is
-     * defined as a quad with only one node on the boundary.
+     * 判断四边形是否为边界菱形（仅有一个节点在边界上）。
+     * 
+     * @return 是边界菱形返回true，否则返回false
      */
     public boolean boundaryDiamond() {
         int bnodes = 0;
@@ -806,7 +913,11 @@ public class Quad extends Element {
         }
     }
 
-    /** Get any node on the boundary that belongs to this quad. */
+    /**
+     * 获取属于该四边形的任意一个边界节点。
+     * 
+     * @return 边界节点，若无则返回null
+     */
     public Node getBoundaryNode() {
         if (edgeList[base].leftNode.boundaryNode()) {
             return edgeList[base].leftNode;
@@ -822,8 +933,9 @@ public class Quad extends Element {
     }
 
     /**
-     * Method to verify that the quad has an area greater than 0. We simply check
-     * that the nodes of the element are not colinear.
+     * 判断四边形面积是否大于0。
+     * 
+     * @return 面积大于0返回true，否则返回false
      */
     @Override
     public boolean areaLargerThan0() {
@@ -836,7 +948,11 @@ public class Quad extends Element {
         return true;
     }
 
-    /** Method to verify that the quad is convex. */
+    /**
+     * 判断四边形是否为凸四边形。
+     * 
+     * @return 是凸四边形返回true，否则返回false
+     */
     public boolean isConvex() {
         Node n1 = edgeList[base].leftNode;
         Node n2 = edgeList[base].rightNode;
@@ -853,8 +969,9 @@ public class Quad extends Element {
     }
 
     /**
-     * Method to verify that the quad is strictly convex, that is, convex in the
-     * common sense and in addition demanding that no three Nodes are colinear.
+     * 判断四边形是否为严格凸四边形（无三点共线）。
+     * 
+     * @return 是严格凸四边形返回true，否则返回false
      */
     public boolean isStrictlyConvex() {
         Node n1 = edgeList[base].leftNode;
@@ -872,8 +989,9 @@ public class Quad extends Element {
     }
 
     /**
-     * @return true if the quad is a bowtie, defined as a quad with two opposite
-     *         edges that intersect.
+     * 判断四边形是否为蝴蝶形（有两组对边相交）。
+     * 
+     * @return 是蝴蝶形返回true，否则返回false
      */
     public boolean isBowtie() {
         Node n1 = edgeList[base].leftNode;
@@ -893,8 +1011,9 @@ public class Quad extends Element {
     }
 
     /**
-     * @return true if the quad is a chevron, defined as a quad with a greatest
-     *         angle that is greater than 200 degrees.
+     * 判断四边形是否为"人字形"（最大角大于200度）。
+     * 
+     * @return 是人字形返回true，否则返回false
      */
     public boolean isChevron() {
         if (largestAngle() >= CHEVRONMIN) {
@@ -905,7 +1024,9 @@ public class Quad extends Element {
     }
 
     /**
-     * @return true if the largest angle of the quad is greater than 180 degrees.
+     * 判断四边形最大角是否大于180度。
+     * 
+     * @return 大于180度返回true，否则返回false
      */
     public boolean largestAngleGT180() {
         if (largestAngle() > DEG_180) {
@@ -916,9 +1037,10 @@ public class Quad extends Element {
     }
 
     /**
-     * The quad should be (strictly?) convex for this method to work correctly.
-     *
-     * @return the next ccw oriented Node of this Quad.
+     * 获取下一个逆时针节点。
+     * 
+     * @param n 当前节点
+     * @return 下一个逆时针节点
      */
     public Node nextCCWNodeOld(Node n) {
         MyVector v0, v1;
@@ -950,9 +1072,10 @@ public class Quad extends Element {
     }
 
     /**
-     * Not tested much yet, but should work very well in principle.
-     *
-     * @return the next node in the ccw direction around this quad.
+     * 获取下一个逆时针节点（推荐使用）。
+     * 
+     * @param n 当前节点
+     * @return 下一个逆时针节点
      */
     public Node nextCCWNode(Node n) {
         Node n2, n3, n4;
@@ -982,12 +1105,7 @@ public class Quad extends Element {
     }
 
     /**
-     * Update so that the edge connected to edgeList[base].leftNode is
-     * edgeList[left] and that the edge connected to edgeList[base].rightNode is
-     * edgeList[right]. The angle between base and left is at pos 0 in the ang
-     * array. The angle between right and base is at pos 1 in the ang array. The
-     * angle between left and top is at pos 2 in the ang array. The angle between
-     * top and right is at pos 3 in the ang array.
+     * 更新左右边的指向和角度数组顺序。
      */
     public void updateLR() {
         Msg.debug("Entering Quad.updateLR()");
@@ -1013,8 +1131,7 @@ public class Quad extends Element {
     }
 
     /**
-     * Update the values in the ang array. Works correctly only for uninverted
-     * quads.
+     * 更新角度数组的值。
      */
     @Override
     public void updateAngles() {
@@ -1041,7 +1158,11 @@ public class Quad extends Element {
         }
     }
 
-    /** Update the values in the ang array except at the specified node. */
+    /**
+     * 更新除指定节点外的角度数组。
+     * 
+     * @param n 要排除的节点
+     */
     public void updateAnglesExcept(Node n) {
         int i = angleIndex(n);
         if (isFake) {
@@ -1095,6 +1216,11 @@ public class Quad extends Element {
         }
     }
 
+    /**
+     * 更新与指定节点相关的角度。
+     * 
+     * @param n 节点
+     */
     @Override
     public void updateAngle(Node n) {
         int i = angleIndex(n);
@@ -1140,7 +1266,11 @@ public class Quad extends Element {
         }
     }
 
-    /** Method to test whether the quad is inverted. */
+    /**
+     * 判断四边形是否反转。
+     * 
+     * @return 反转返回true，否则返回false
+     */
     @Override
     public boolean inverted() {
         Msg.debug("Entering Quad.inverted()");
@@ -1163,7 +1293,8 @@ public class Quad extends Element {
             }
         }
 
-        Node a = edgeList[base].leftNode, b = edgeList[base].rightNode, c = edgeList[right].otherNode(b), d = edgeList[left].otherNode(a);
+        Node a = edgeList[base].leftNode, b = edgeList[base].rightNode, c = edgeList[right].otherNode(b),
+                d = edgeList[left].otherNode(a);
 
         // We need at least 3 okays to be certain that this quad is not inverted
         int okays = 0;
@@ -1192,7 +1323,11 @@ public class Quad extends Element {
         }
     }
 
-    /** Method to test whether the quad is inverted or its area is zero. */
+    /**
+     * 判断四边形是否反转或面积为零。
+     * 
+     * @return 反转或零面积返回true，否则返回false
+     */
     @Override
     public boolean invertedOrZeroArea() {
         Msg.debug("Entering Quad.invertedOrZeroArea()");
@@ -1215,7 +1350,8 @@ public class Quad extends Element {
             }
         }
 
-        Node a = edgeList[base].leftNode, b = edgeList[base].rightNode, c = edgeList[right].otherNode(b), d = edgeList[left].otherNode(a);
+        Node a = edgeList[base].leftNode, b = edgeList[base].rightNode, c = edgeList[right].otherNode(b),
+                d = edgeList[left].otherNode(a);
 
         // We need at least 3 okays to be certain that this quad is not inverted
         int okays = 0;
@@ -1245,11 +1381,10 @@ public class Quad extends Element {
     }
 
     /**
-     * Determines whether there is a concavity (angle > 180 degrees) at the
-     * specified node.
-     *
-     * @param n the node at the angle to investigate
-     * @return true if the element has a concavity at the specified node.
+     * 判断指定节点处是否为凹点（角度大于180度）。
+     * 
+     * @param n 节点
+     * @return 是凹点返回true，否则返回false
      */
     @Override
     public boolean concavityAt(Node n) {
@@ -1264,8 +1399,9 @@ public class Quad extends Element {
     }
 
     /**
-     * @return the centroid of this quad.... or at least a point *inside* the
-     *         quad... Assumes that the quad is not inverted.
+     * 获取四边形的中心点。
+     * 
+     * @return 中心节点
      */
     public Node centroid() {
         double x = 0, y = 0;
@@ -1299,8 +1435,10 @@ public class Quad extends Element {
     }
 
     /**
-     * @param n a node in this quad
-     * @return the node on the opposite side of node n in the quad
+     * 获取与指定节点相对的节点。
+     * 
+     * @param n 节点
+     * @return 对节点
      */
     public Node oppositeNode(Node n) {
         // 2 out of 4 edges has Node n, so at least 1 out of 3 edge must have it, too:
@@ -1320,7 +1458,12 @@ public class Quad extends Element {
         return e.otherNode(n2);
     }
 
-    /** @return the opposite Edge of Node n that is cw to the other opposite Edge */
+    /**
+     * 获取顺时针方向上与指定节点相对的边。
+     * 
+     * @param n 节点
+     * @return 对边
+     */
     public Edge cwOppositeEdge(Node n) {
         if (n == edgeList[base].leftNode) {
             return edgeList[right];
@@ -1336,7 +1479,10 @@ public class Quad extends Element {
     }
 
     /**
-     * @return the opposite Edge of Node n that is ccw to the other opposite Edge
+     * 获取逆时针方向上与指定节点相对的边。
+     * 
+     * @param n 节点
+     * @return 对边
      */
     public Edge ccwOppositeEdge(Node n) {
         if (n == edgeList[base].leftNode) {
@@ -1352,6 +1498,12 @@ public class Quad extends Element {
         }
     }
 
+    /**
+     * 获取与指定边相对的边。
+     * 
+     * @param e 边
+     * @return 对边
+     */
     public Edge oppositeEdge(Edge e) {
         if (e == edgeList[base]) {
             return edgeList[top];
@@ -1367,8 +1519,9 @@ public class Quad extends Element {
     }
 
     /**
-     * Check to see if any of the neighboring quad elements have become inverted
-     * NOTE 1: I might not need to check those elements that lies behind the front.
+     * 判断相邻四边形是否反转。
+     * 
+     * @return 存在反转返回true，否则返回false
      */
     public boolean invertedNeighbors() {
         Node uLNode = edgeList[left].otherNode(edgeList[base].leftNode);
@@ -1427,7 +1580,11 @@ public class Quad extends Element {
         return false;
     }
 
-    /** @return a list of all triangles adjacent to this quad. */
+    /**
+     * 获取与该四边形相邻的所有三角形。
+     * 
+     * @return 相邻三角形列表
+     */
     public List<Triangle> getAdjTriangles() {
         List<Triangle> triangleList;
         Node uLNode = edgeList[left].otherNode(edgeList[base].leftNode);
@@ -1470,7 +1627,11 @@ public class Quad extends Element {
         return triangleList;
     }
 
-    /** @return a list of all nodes adjacent to this quad. */
+    /**
+     * 获取与该四边形相邻的所有节点。
+     * 
+     * @return 相邻节点列表
+     */
     public List<Node> getAdjNodes() {
         List<Node> nodeList = new ArrayList<>();
         Edge e;
@@ -1523,14 +1684,19 @@ public class Quad extends Element {
         return nodeList;
     }
 
+    /**
+     * 替换四边形中的某条边。
+     * 
+     * @param e           原边
+     * @param replacement 替换边
+     */
     @Override
     public void replaceEdge(Edge e, Edge replacement) {
         edgeList[indexOf(e)] = replacement;
     }
 
     /**
-     * Make the Element pointers in each of the Edges in this Quad point to this
-     * Quad.
+     * 让四边形的四条边都指向该四边形。
      */
     @Override
     public void connectEdges() {
@@ -1543,8 +1709,7 @@ public class Quad extends Element {
     }
 
     /**
-     * Release the element pointer of the edges in edgeList that pointed to this
-     * Quad.
+     * 断开四边形四条边与该四边形的连接。
      */
     @Override
     public void disconnectEdges() {
@@ -1557,8 +1722,11 @@ public class Quad extends Element {
     }
 
     /**
-     * @return an Edge that is common to both this Quad and Quad q at Node n. Return
-     *         null if none exists.
+     * 获取与另一个四边形在指定节点处的公共边。
+     * 
+     * @param n 节点
+     * @param q 另一个四边形
+     * @return 公共边，若无则返回null
      */
     public Edge commonEdgeAt(Node n, Quad q) {
         for (Edge e : n.edgeList) {
@@ -1570,9 +1738,10 @@ public class Quad extends Element {
     }
 
     /**
-     * @param q a neighbor quad sharing an edge with this quad.
-     * @return an edge that is common to both this quad and quad q. Return null if
-     *         none exists.
+     * 获取与另一个四边形的公共边。
+     * 
+     * @param q 另一个四边形
+     * @return 公共边，若无则返回null
      */
     public Edge commonEdge(Quad q) {
         if (q == neighbor(edgeList[base])) {
@@ -1589,8 +1758,10 @@ public class Quad extends Element {
     }
 
     /**
-     * @return true if at least one of the edges connected to node n is a front
-     *         edge.
+     * 判断指定节点处是否有前边。
+     * 
+     * @param n 节点
+     * @return 有前边返回true，否则返回false
      */
     public boolean hasFrontEdgeAt(Node n) {
         if (edgeList[left].hasNode(n)) {
@@ -1626,8 +1797,10 @@ public class Quad extends Element {
     }
 
     /**
-     * @return the number of quad neighbors sharing an edge with this quad at node
-     *         n. This quad is not counted. Values are 0, 1, or 2.
+     * 获取在指定节点处与该四边形共享边的四边形数量。
+     * 
+     * @param n 节点
+     * @return 共享边的四边形数量
      */
     public int nrOfQuadsSharingAnEdgeAt(Node n) {
         int count = 0;
@@ -1662,16 +1835,12 @@ public class Quad extends Element {
     }
 
     /**
-     * Update the distortion metric according to the paper "An approach to Combined
-     * Laplacian and Optimization-Based Smoothing for Triangular, Quadrilateral and
-     * Quad-Dominant Meshes" by by Cannan, Tristano, and Staten
-     *
-     * return negative values for inverted quadrilaterals, else positive.
-     *         Equilateral quadrilaterals should return the maximum value of 1.
+     * 更新四边形的畸变度量。
+     * 参考文献：An approach to Combined Laplacian and Optimization-Based Smoothing for
+     * Triangular, Quadrilateral and Quad-Dominant Meshes
      */
     //
-    // This is a simple sketch of the quadrilateral with nodes and divided
-    // into four triangles:
+    // 这是一个简单的四边形示意图，展示了节点和四个三角形的划分：
     //
     // n3__________n4
     // |\ /|
@@ -1683,10 +1852,9 @@ public class Quad extends Element {
     // |/___________\|
     // n1 n2
     //
-    // Also, I tried to sketch the case where the quad has an angle > than 180
-    // degrees
-    // Note that t3 is part of t1 and that t4 is part of t2 in the sketch.
-    // t3 and t4 are inverted.
+    // 另外，我还尝试绘制了一个角度大于180度的四边形情况
+    // 注意在图中t3是t1的一部分，t4是t2的一部分
+    // t3和t4是倒置的
     //
     // n3
     // |\ \
@@ -1704,7 +1872,8 @@ public class Quad extends Element {
         if (isFake) {
             double AB = edgeList[base].len, CB = edgeList[left].len, CA = edgeList[right].len;
 
-            Node a = edgeList[base].commonNode(edgeList[right]), b = edgeList[base].commonNode(edgeList[left]), c = edgeList[left].commonNode(edgeList[right]);
+            Node a = edgeList[base].commonNode(edgeList[right]), b = edgeList[base].commonNode(edgeList[left]),
+                    c = edgeList[left].commonNode(edgeList[right]);
             MyVector vCA = new MyVector(c, a), vCB = new MyVector(c, b);
 
             double temp = sqrt3x2 * Math.abs(vCA.cross(vCB)) / (CA * CA + AB * AB + CB * CB);
@@ -1751,7 +1920,8 @@ public class Quad extends Element {
         t3.updateDistortionMetric(4.0);
         t4.updateDistortionMetric(4.0);
 
-        double alpha1 = t1.distortionMetric, alpha2 = t2.distortionMetric, alpha3 = t3.distortionMetric, alpha4 = t4.distortionMetric;
+        double alpha1 = t1.distortionMetric, alpha2 = t2.distortionMetric, alpha3 = t3.distortionMetric,
+                alpha4 = t4.distortionMetric;
 
         int invCount = 0;
         if (alpha1 < 0) {
@@ -1778,7 +1948,8 @@ public class Quad extends Element {
             } else {
                 negval = 3.0;
             }
-        } else if (ang[0] < DEG_6 || ang[1] < DEG_6 || ang[2] < DEG_6 || ang[3] < DEG_6 || coincidentNodes(n1, n2, n3, n4) || invCount == 2) {
+        } else if (ang[0] < DEG_6 || ang[1] < DEG_6 || ang[2] < DEG_6 || ang[3] < DEG_6
+                || coincidentNodes(n1, n2, n3, n4) || invCount == 2) {
             negval = 1.0;
         }
 
@@ -1786,7 +1957,15 @@ public class Quad extends Element {
         Msg.debug("Leaving Quad.updateDistortionMetric(): " + distortionMetric);
     }
 
-    /** Test whether any nodes of the quad are coincident. */
+    /**
+     * 判断四个节点中是否有重合。
+     * 
+     * @param n1 节点1
+     * @param n2 节点2
+     * @param n3 节点3
+     * @param n4 节点4
+     * @return 有重合返回true，否则返回false
+     */
     private boolean coincidentNodes(Node n1, Node n2, Node n3, Node n4) {
         Msg.debug("Entering Quad.coincidentNodes(..)");
         double x12diff = n2.x - n1.x;
@@ -1821,7 +2000,11 @@ public class Quad extends Element {
         }
     }
 
-    /** @return the size of the largest interior angle */
+    /**
+     * 获取四边形的最大内角。
+     * 
+     * @return 最大内角
+     */
     @Override
     public double largestAngle() {
         double cand = ang[0];
@@ -1837,7 +2020,11 @@ public class Quad extends Element {
         return cand;
     }
 
-    /** @return the node at the largest interior angle */
+    /**
+     * 获取最大内角对应的节点。
+     * 
+     * @return 最大内角节点
+     */
     @Override
     public Node nodeAtLargestAngle() {
         Node candNode = edgeList[base].leftNode;
@@ -1857,7 +2044,11 @@ public class Quad extends Element {
         return candNode;
     }
 
-    /** @return the length of the longest Edge in the quad */
+    /**
+     * 获取四边形最长边的长度。
+     * 
+     * @return 最长边长度
+     */
     @Override
     public double longestEdgeLength() {
         double t1 = Math.max(edgeList[base].len, edgeList[left].len);
@@ -1866,8 +2057,10 @@ public class Quad extends Element {
     }
 
     /**
-     * @param first a triangle that is located inside the quad
-     * @return a list of triangles contained within the four edges of this quad.
+     * 获取四边形内部包含的所有三角形。
+     * 
+     * @param first 内部三角形
+     * @return 包含的三角形列表
      */
     public ArrayList trianglesContained(Triangle first) {
         Msg.debug("Entering trianglesContained(..)");
@@ -1896,11 +2089,10 @@ public class Quad extends Element {
     }
 
     /**
-     * Test whether the quad contains a hole.
-     *
-     * @param tris the interior triangles
-     * @return true if there are one or more holes present within the four edges
-     *         defining the quad.
+     * 判断四边形内部是否包含空洞。
+     * 
+     * @param tris 内部三角形列表
+     * @return 存在空洞返回true，否则返回false
      */
     public boolean containsHole(ArrayList tris) {
         Triangle t;
@@ -1911,7 +2103,8 @@ public class Quad extends Element {
 
         for (Object element : tris) {
             t = (Triangle) element;
-            if (t.edgeList[0].boundaryEdge() && !hasEdge(t.edgeList[0]) || t.edgeList[1].boundaryEdge() && !hasEdge(t.edgeList[1])
+            if (t.edgeList[0].boundaryEdge() && !hasEdge(t.edgeList[0])
+                    || t.edgeList[1].boundaryEdge() && !hasEdge(t.edgeList[1])
                     || t.edgeList[2].boundaryEdge() && !hasEdge(t.edgeList[2])) {
                 return true;
             }
@@ -1919,7 +2112,9 @@ public class Quad extends Element {
         return false;
     }
 
-    /** Set the color of the edges to green. */
+    /**
+     * 将四边形的四条边颜色标记为合法（绿色）。
+     */
     @Override
     public void markEdgesLegal() {
         edgeList[base].color = java.awt.Color.green;
@@ -1928,7 +2123,9 @@ public class Quad extends Element {
         edgeList[top].color = java.awt.Color.green;
     }
 
-    /** Set the color of the edges to red. */
+    /**
+     * 将四边形的四条边颜色标记为非法（红色）。
+     */
     @Override
     public void markEdgesIllegal() {
         edgeList[base].color = java.awt.Color.red;
@@ -1938,9 +2135,9 @@ public class Quad extends Element {
     }
 
     /**
-     * Give a string representation of the quad.
-     *
-     * @return a string representation of the quad.
+     * 获取四边形的字符串描述。
+     * 
+     * @return 描述字符串
      */
     @Override
     public String descr() {
@@ -1953,12 +2150,14 @@ public class Quad extends Element {
         return node1.descr() + ", " + node2.descr() + ", " + node3.descr() + ", " + node4.descr();
     }
 
-    /** Output a string representation of the quad. */
+    /**
+     * 打印四边形的描述信息。
+     */
     @Override
     public void printMe() {
-        System.out.println(descr() + ", inverted(): " + inverted() + ", ang[0]: " + Math.toDegrees(ang[0]) + ", ang[1]: " + Math.toDegrees(ang[1])
-                + ", ang[2]: " + Math.toDegrees(ang[2]) + ", ang[3]: " + Math.toDegrees(ang[3]) + ", firstNode is " + firstNode.descr());
+        System.out.println(descr() + ", inverted(): " + inverted() + ", ang[0]: " + Math.toDegrees(ang[0])
+                + ", ang[1]: " + Math.toDegrees(ang[1])
+                + ", ang[2]: " + Math.toDegrees(ang[2]) + ", ang[3]: " + Math.toDegrees(ang[3]) + ", firstNode is "
+                + firstNode.descr());
     }
-
-    public boolean isFake;
 }

@@ -1,6 +1,5 @@
 package org.tim.qmorph.geom;
 
-
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,29 +9,55 @@ import org.tim.qmorph.meshing.Constants;
 import org.tim.qmorph.viewer.Msg;
 
 /**
- * This class holds information for nodes, and has methods for the management of
- * issues regarding nodes.
+ * 该类用于保存节点（Node）相关的信息，并提供节点管理和操作的方法。
+ * 包括节点的坐标、相连边、颜色、以及各种网格操作和几何计算。
  */
-
 public class Node extends Constants {
 
-    /** Boolean indicating whether the node has been moved by the OBS */
+    /**
+     * 指示该节点是否被OBS平滑器移动过。
+     */
     public boolean movedByOBS = false; // Used by the smoother
-    /** The coordinates */
-    public double x, y;
-    /** A valence pattern for this node */
+    /**
+     * 节点的x坐标。
+     */
+    public double x;
+    /**
+     * 节点的y坐标。
+     */
+    public double y;
+    /**
+     * 该节点的价模式（邻接边数模式）。
+     */
     public byte[] pattern;
     // byte state= 0; // For front Nodes only
+    /**
+     * 与该节点相连的所有边的列表。
+     */
     public List<Edge> edgeList;
+    /**
+     * 节点的颜色。
+     */
     public Color color = Color.cyan;
 
-    /** Create new node with position (x,y). */
+    /**
+     * 创建一个指定坐标的新节点。
+     * 
+     * @param x x坐标
+     * @param y y坐标
+     */
     public Node(double x, double y) {
         this.x = x;
         this.y = y;
         edgeList = new ArrayList<>();
     }
 
+    /**
+     * 判断当前节点与另一个对象是否相等（坐标相同即为相等）。
+     * 
+     * @param elem 另一个对象
+     * @return 如果是Node且坐标相同返回true，否则返回false
+     */
     @Override
     public boolean equals(Object elem) {
         if (!(elem instanceof Node)) {
@@ -46,36 +71,59 @@ public class Node extends Constants {
         }
     }
 
-    /** @return a "real" copy of this node with a shallow copy of its edgeList. */
+    /**
+     * 返回该节点的一个"浅拷贝"，edgeList也会被浅拷贝。
+     * 
+     * @return 新的节点对象
+     */
     public Node copy() {
         Node n = new Node(x, y);
         n.edgeList = new ArrayList<>(edgeList);
         return n;
     }
 
-    /** @return a new node with the same position as this. */
+    /**
+     * 返回一个具有相同坐标的新节点。
+     * 
+     * @return 新的节点对象
+     */
     public Node copyXY() {
         return new Node(x, y);
     }
 
-    /** Relocate this node to the same position as n. */
+    /**
+     * 将当前节点移动到另一个节点的位置。
+     * 
+     * @param n 目标节点
+     */
     public void setXY(Node n) {
         x = n.x;
         y = n.y;
     }
 
-    /** Relocate this node to position (x,y) */
+    /**
+     * 将当前节点移动到指定坐标。
+     * 
+     * @param x 新的x坐标
+     * @param y 新的y坐标
+     */
     public void setXY(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * 更新与该节点相关的左右节点、边长度和角度信息。
+     */
     public void update() {
         updateLRinEdgeList();
         updateEdgeLengths();
         updateAngles();
     }
 
+    /**
+     * 更新edgeList中所有边的左右节点信息。
+     */
     public void updateLRinEdgeList() {
         boolean btemp;
         Edge temp;
@@ -113,7 +161,12 @@ public class Node extends Constants {
         }
     }
 
-    /** Change the position of the node to position (x,y) */
+    /**
+     * 将节点移动到指定坐标，并更新相关边的左右节点信息。
+     * 
+     * @param x 新的x坐标
+     * @param y 新的y坐标
+     */
     public void moveToPos(double x, double y) {
         this.x = x;
         this.y = y;
@@ -121,7 +174,11 @@ public class Node extends Constants {
         updateLRinEdgeList();
     }
 
-    /** Change the position of the node to the position of the specified node */
+    /**
+     * 将节点移动到另一个节点的位置，并更新相关边的左右节点信息。
+     * 
+     * @param n 目标节点
+     */
     public void moveTo(Node n) {
         x = n.x;
         y = n.y;
@@ -129,20 +186,25 @@ public class Node extends Constants {
         updateLRinEdgeList();
     }
 
-    /** Update all lengths of edges around this Node */
+    /**
+     * 更新与该节点相连的所有边的长度。
+     */
     public void updateEdgeLengths() {
         for (Edge e : edgeList) {
             e.len = e.computeLength();
         }
     }
 
+    /**
+     * 更新节点的状态（预留方法，当前未实现）。
+     */
     public void updateState() {
 
     }
 
     /**
-     * Update (almost) all angles in all elements adjacent to this Node. Note: still
-     * experimental, not tested thoroughly.
+     * 更新与该节点相关的所有角度信息（实验性方法）。
+     * 遍历所有与该节点相连的边，更新其相邻元素的角度。
      */
     public void updateAngles() {
         Msg.debug("Entering Node.updateAngles()");
@@ -192,9 +254,9 @@ public class Node extends Constants {
     }
 
     /**
-     * Update all lengths of edges and angles between edges around the node.
+     * 更新与该节点相连的所有边的长度和角度（旧版方法，已弃用）。
      *
-     * @deprecated This is the old version.
+     * @deprecated 建议使用 updateEdgeLengths 和 updateAngles 替代。
      */
     @Deprecated
     public void oldupdateEdgeLengthsAndAngles() {
@@ -229,18 +291,32 @@ public class Node extends Constants {
         } while (curElem != null && curEdge != edgeList.get(0));
     }
 
+    /**
+     * 计算当前节点与另一个节点的叉积。
+     * 
+     * @param n 另一个节点
+     * @return 叉积结果
+     */
     public double cross(Node n) {
         return x * n.y - n.x * y;
     }
 
+    /**
+     * 将一条边连接到该节点（如果尚未连接）。
+     * 
+     * @param edge 要连接的边
+     */
     public void connectToEdge(Edge edge) {
         if (!edgeList.contains(edge)) {
             edgeList.add(edge);
         }
     }
 
-    // Rewrite of ccwSortedEdgeList().
-    // We use vector representations instead of the edges directly.
+    /**
+     * 获取以当前节点为起点的、逆时针排序的向量列表。
+     * 
+     * @return 逆时针排序的向量列表
+     */
     public ArrayList<MyVector> ccwSortedVectorList() {
         Element elem, start;
         MyVector v, v0, v1;
@@ -329,42 +405,13 @@ public class Node extends Constants {
 
         return VS;
     }
-    /*
-     * // b1: First boundary edge // b2: Second boundary edge public ArrayList
-     * ccwSortedVectorList(Edge b0, Edge b1) {
-     * Msg.debug("Entering Node.ccwSortedVectorList(Edge b0, Edge b1)");
-     * Msg.debug("b0: "+b0.descr()); Msg.debug("b1: "+b1.descr()); Element elem,
-     * start; MyVector v, v0, v1; Edge e; ArrayList vectors= new ArrayList();
-     *
-     * for (int i= 0; i< edgeList.size(); i++) { e= (Edge)edgeList.get(i); if (e!=
-     * b0 && e!= b1) { v= e.getVector(this); v.edge= e; vectors.add(v); } }
-     *
-     * v0= b0.getVector(this); v0.edge= b0; v1= b1.getVector(this); v1.edge= b1;
-     *
-     * elem= b0.element1; if (v0.isCWto(v1)) { if (elem.concavityAt(this)) { v0= v1;
-     * elem= b1.element1; } } else if (!elem.concavityAt(this)) { v0= v1; elem=
-     * b1.element1; }
-     * Msg.debug("Node.ccwSortedVectorList(Edge, Edge): 0: "+v0.edge.descr());
-     *
-     * // Sort vectors in ccw order starting with v0. // Uses the fact that elem
-     * initially is the element ccw to v0 around this Node. ArrayList VS= new
-     * ArrayList(); e= v0.edge;
-     *
-     * start= elem; do { v= e.getVector(this); v.edge= e;
-     * Msg.debug("... VS.add("+v.descr()+")"); VS.add(v);
-     *
-     * e= elem.neighborEdge(this, e); elem= elem.neighbor(e); } while (elem!= start
-     * && elem!= null);
-     *
-     * return VS; }
-     */
 
     /**
-     * Assumes: b0 and b1 form a convex boundary, but not neccessarily *strictly*
-     * convex
-     *
-     * @param b0 First boundary edge
-     * @param b1 Second boundary edge
+     * 计算以两个边为边界的、逆时针排序的边列表。
+     * 
+     * @param b0 第一个边界边
+     * @param b1 第二个边界边
+     * @return 逆时针排序的边列表
      */
     public List<Edge> calcCCWSortedEdgeList(Edge b0, Edge b1) {
         MyVector v, v0, v1;
@@ -436,11 +483,10 @@ public class Node extends Constants {
     }
 
     /**
-     * Note: *ALL* nodes in a neighboring quad is regarded as neighbors, not only
-     * those that are directly connected to this node by edges.
-     *
-     * @return a ccw sorted list of the neighboring nodes to this, but returns null
-     *         if this node is part of any triangle.
+     * 获取以当前节点为中心、逆时针排序的相邻节点列表。
+     * 如果节点属于三角形则返回null。
+     * 
+     * @return 逆时针排序的相邻节点数组，或null
      */
     public Node[] ccwSortedNeighbors() {
         Msg.debug("Entering Node.ccwSortedNeighbors(..)");
@@ -521,6 +567,11 @@ public class Node extends Constants {
         return ccwNodeList;
     }
 
+    /**
+     * 计算与该节点相连的所有边的平均长度。
+     * 
+     * @return 平均边长
+     */
     public double meanNeighborEdgeLength() {
         double sumLengths = 0.0, len, j = 0;
 
@@ -535,11 +586,21 @@ public class Node extends Constants {
         return sumLengths / j;
     }
 
+    /**
+     * 获取与该节点相邻的元素（包括三角形和四边形）的数量。
+     * 
+     * @return 相邻元素数量
+     */
     public int nrOfAdjElements() {
         List<Element> list = adjElements();
         return list.size();
     }
 
+    /**
+     * 获取与该节点相邻的所有元素（包括三角形和四边形）。
+     * 
+     * @return 相邻元素列表
+     */
     public List<Element> adjElements() {
         Edge e;
         ArrayList<Element> list = new ArrayList<>();
@@ -556,11 +617,21 @@ public class Node extends Constants {
         return list;
     }
 
+    /**
+     * 获取与该节点相邻的四边形数量。
+     * 
+     * @return 相邻四边形数量
+     */
     public int nrOfAdjQuads() {
         List<Element> list = adjQuads();
         return list.size();
     }
 
+    /**
+     * 获取与该节点相邻的所有四边形元素。
+     * 
+     * @return 相邻四边形元素列表
+     */
     public List<Element> adjQuads() {
         Edge e;
         ArrayList<Element> list = new ArrayList<>();
@@ -576,12 +647,21 @@ public class Node extends Constants {
         return list;
     }
 
+    /**
+     * 获取与该节点相邻的三角形数量。
+     * 
+     * @return 相邻三角形数量
+     */
     public int nrOfAdjTriangles() {
         List<Triangle> list = adjTriangles();
         return list.size();
     }
 
-    // Hmm. Should I include fake quads as well?
+    /**
+     * 获取与该节点相邻的所有三角形元素。
+     * 
+     * @return 相邻三角形元素列表
+     */
     public List<Triangle> adjTriangles() {
         Edge e;
         List<Triangle> list = new ArrayList<>();
@@ -598,9 +678,9 @@ public class Node extends Constants {
     }
 
     /**
-     * Classic Laplacian smooth. Of course, to be run on internal nodes only.
-     *
-     * @return the vector from the old to the new position.
+     * 对内部节点执行经典的Laplacian平滑操作。
+     * 
+     * @return 从旧位置到新位置的向量
      */
     public MyVector laplacianMoveVector() {
         MyVector c, cJSum = new MyVector(origin, origin);
@@ -619,9 +699,9 @@ public class Node extends Constants {
     }
 
     /**
-     * Classic Laplacian smooth. Of course, to be run on internal nodes only.
-     *
-     * @return the new position of node
+     * 对内部节点执行经典的Laplacian平滑操作。
+     * 
+     * @return 新节点的位置
      */
     public Node laplacianSmooth() {
         MyVector c, cJSum = new MyVector(origin, origin);
@@ -640,11 +720,10 @@ public class Node extends Constants {
     }
 
     /**
-     * Classic Laplacian smooth, but exclude the given neighbor node from the
-     * calculation. Of course, to be run on internal nodes only.
-     *
-     * @param node the node to be excluded
-     * @return the new position of node
+     * 对内部节点执行经典的Laplacian平滑操作，但排除指定的邻居节点。
+     * 
+     * @param node 要排除的邻居节点
+     * @return 新节点的位置
      */
     public Node laplacianSmoothExclude(Node node) {
         MyVector c, cJSum = new MyVector(origin, origin);
@@ -665,10 +744,9 @@ public class Node extends Constants {
     }
 
     /**
-     * Run this on internal nodes (not part of the boundary or front) Does a
-     * modified length weighted Laplacian smooth.
-     *
-     * @return a new node with the smoothed position.
+     * 对内部节点执行加权Laplacian平滑操作。
+     * 
+     * @return 新节点的位置
      */
     public Node modifiedLWLaplacianSmooth() {
         Msg.debug("Entering Node.modifiedLWLaplacianSmooth()...");
@@ -723,6 +801,11 @@ public class Node extends Constants {
         return node;
     }
 
+    /**
+     * 统计该节点作为前边的数量。
+     * 
+     * @return 前边数量
+     */
     public int nrOfFrontEdges() {
         int fronts = 0;
         for (Edge e : edgeList) {
@@ -734,15 +817,13 @@ public class Node extends Constants {
     }
 
     /**
-     * An implementation of an algorithm described in a paper by Blacker and
-     * Stephenson.
-     *
-     * @param nJ     the other node that lies behind this node (not on the
-     *               front/boundary)
-     * @param ld     length from this to nJ
-     * @param front1 front/boundary neighbor edge to this
-     * @param front2 front/boundary neighbor edge to this
-     * @return a new node (with a smoothed positing) that can replace this node.
+     * Blacker-Stephenson算法的实现，用于节点平滑。
+     * 
+     * @param nJ     后方节点
+     * @param ld     距离
+     * @param front1 前/边界邻边1
+     * @param front2 前/边界邻边2
+     * @return 新节点
      */
     public Node blackerSmooth(Node nJ, Edge front1, Edge front2, double ld) {
         Msg.debug("Entering blackerSmooth(..)...");
@@ -824,14 +905,13 @@ public class Node extends Constants {
     }
 
     /**
-     * Performs an angular smoothness adjustment as described in the paper by
-     * Blacker and Stephenson. Assumes that this is a node that lies on the
-     * front/boundary.
-     *
-     * @param nJ the node connected to this, that lies behind the front/boundary
-     * @param f1 front/boundary neighbor edge to this
-     * @param f2 front/boundary neighbor edge to this
-     * @return a vector that should replace the edge between this and nJ
+     * 按照Blacker-Stephenson算法进行角度平滑调整。
+     * 
+     * @param nJ 后方节点
+     * @param f1 前/边界邻边1
+     * @param f2 前/边界邻边2
+     * @param ld 距离
+     * @return 应用于该节点的平滑向量
      */
     public MyVector angularSmoothnessAdjustment(Node nJ, Edge f1, Edge f2, double ld) {
         Msg.debug("Entering angularSmoothnessAdjustment(..) ...");
@@ -970,12 +1050,10 @@ public class Node extends Constants {
     }
 
     /**
-     * Test whether any of the adjacent elements has become inverted or their areas
-     * are zero.
-     *
-     * @param elements the list of elements to parse
-     * @return true if the movement of a node has caused any of it's adjacent
-     *         elements to become inverted or get an area of size zero.
+     * 检查节点移动后，是否有相邻元素变为反转或面积为零。
+     * 
+     * @param elements 要检查的元素列表
+     * @return 存在反转或零面积元素返回true，否则返回false
      */
     public boolean invertedOrZeroAreaElements(List<Element> elements) {
         for (Element elem : elements) {
@@ -988,14 +1066,11 @@ public class Node extends Constants {
     }
 
     /**
-     * Incrementally adjust the location of the node (along a vector) until none of
-     * it's neighboring elements are inverted. Use increments of size vector
-     * component divided by 50 in each direction, unless ONE of these increments is
-     * less than a given lower limit. If so, the increments in the direction of the
-     * shortest component should be equal to that limit, while the other direction
-     * is dictated by the first, of course.
-     *
-     * @return true on success else false.
+     * 增量调整节点位置，直到所有相邻元素都不是反转或零面积。
+     * 
+     * @param old      原始节点
+     * @param elements 相邻元素列表
+     * @return 成功返回true，否则返回false
      */
     public boolean incrAdjustUntilNotInvertedOrZeroArea(Node old, List<Element> elements) {
         Msg.debug("Entering incrAdjustUntilNotInvertedOrZeroArea(..)");
@@ -1139,12 +1214,25 @@ public class Node extends Constants {
         return null;
     }
 
+    /**
+     * 计算当前节点到另一个节点的距离。
+     * 
+     * @param n 目标节点
+     * @return 距离
+     */
     public double length(Node n) {
         double xDiff = x - n.x;
         double yDiff = y - n.y;
         return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
     }
 
+    /**
+     * 计算当前节点到指定坐标的距离。
+     * 
+     * @param x 目标x坐标
+     * @param y 目标y坐标
+     * @return 距离
+     */
     public double length(double x, double y) {
         double xDiff = this.x - x;
         double yDiff = this.y - y;
@@ -1152,7 +1240,10 @@ public class Node extends Constants {
     }
 
     /**
-     * Determine if a node is on the line (of infinite length) that e is a part of.
+     * 判断该节点是否在指定边所在的直线上。
+     * 
+     * @param e 边
+     * @return 在直线上返回true，否则返回false
      */
     public boolean onLine(Edge e) {
         BigDecimal x1 = new BigDecimal(e.leftNode.x);
@@ -1177,12 +1268,11 @@ public class Node extends Constants {
     }
 
     /**
-     * Determine if a node is in a given halfplane. The method is based on the
-     * determinant as described in Schewchuk's paper.
-     *
-     * @return 1 if this Node is in the halfplane defined by Triangle t and Edge e,
-     *         0 if the Node is on Edge e, -1 if the node is not in the halfplane
-     *         defined by Triangle t and Edge e.
+     * 判断该节点是否在由三角形和边定义的半平面内。
+     * 
+     * @param t 三角形
+     * @param e 边
+     * @return 1在半平面内，0在边上，-1在另一侧
      */
     public int inHalfplane(Triangle t, Edge e) {
         return inHalfplane(e.leftNode, e.rightNode, t.oppositeOfEdge(e));
@@ -1233,8 +1323,10 @@ public class Node extends Constants {
     }
 
     /**
-     * Test to see if this Node lies in the plane bounded by the two parallel lines
-     * intersecting the Nodes of Edge e that are normal to Edge e.
+     * 判断该节点是否在由边的法线限定的有界平面内。
+     * 
+     * @param e 边
+     * @return 在有界平面内返回true，否则返回false
      */
     public boolean inBoundedPlane(Edge e) {
         Edge normal1 = e.unitNormalAt(e.leftNode);
@@ -1255,9 +1347,12 @@ public class Node extends Constants {
     }
 
     /**
-     * Return true if the circle intersecting the Nodes p1, p2, and p3 contains this
-     * Node in its interior. p1, p2, p3, and p4 are ccw sorted. Note that testing
-     * for convexity of the quad should not be necessary.
+     * 判断该节点是否在由p1、p2、p3三点确定的圆的内部。
+     * 
+     * @param p1 圆上一点
+     * @param p2 圆上一点
+     * @param p3 圆上一点
+     * @return 在圆内返回true，否则返回false
      */
     public boolean inCircle(Node p1, Node p2, Node p3) {
         Msg.debug("Entering inCircle(..)");
@@ -1300,9 +1395,9 @@ public class Node extends Constants {
     }
 
     /**
-     * Pretending this and n has the same location, copy the edges in n's edgelist
-     * that this node doesn't already have, and put them into this node's edgeList.
-     * If this and n have any common edges, these must be removed.
+     * 合并另一个节点的边到当前节点（假设两节点位置相同）。
+     * 
+     * @param n 另一个节点
      */
     public void merge(Node n) {
         Node oldN = n.copyXY();
@@ -1324,6 +1419,11 @@ public class Node extends Constants {
         n.setXY(oldN);
     }
 
+    /**
+     * 获取该节点的所有前边列表。
+     * 
+     * @return 前边列表
+     */
     public List<Edge> frontEdgeList() {
         List<Edge> list = new ArrayList<>();
         Edge e;
@@ -1337,9 +1437,10 @@ public class Node extends Constants {
     }
 
     /**
-     * Parse the edgeList to look for Edge e.
-     *
-     * @return true if found, else false
+     * 判断该节点是否包含指定的边。
+     * 
+     * @param e 边
+     * @return 包含返回true，否则返回false
      */
     public boolean hasEdge(Edge e) {
         for (Edge curEdge : edgeList) {
@@ -1350,7 +1451,11 @@ public class Node extends Constants {
         return false;
     }
 
-    /** Determine the node valence. */
+    /**
+     * 获取该节点的价（相连边数，特殊处理边界节点）。
+     * 
+     * @return 节点价
+     */
     public byte valence() {
         byte temp = (byte) edgeList.size();
         if (!boundaryNode()) {
@@ -1377,12 +1482,17 @@ public class Node extends Constants {
         }
     }
 
-    /** Calculate the valence pattern for this node and its neighbors. */
+    /**
+     * 计算该节点及其邻居的价模式。
+     * 
+     * @param ccwNodes 逆时针排序的邻居节点
+     */
     public void createValencePattern(Node[] ccwNodes) {
         Msg.debug("Entering Node.createValencePattern(..)");
         int j = edgeList.size() * 2;
         if (j >= 128) {
-            Msg.error("Number of edges adjacent node " + descr() + " was greater than expected (" + edgeList.size() + "-2 >= 64)");
+            Msg.error("Number of edges adjacent node " + descr() + " was greater than expected (" + edgeList.size()
+                    + "-2 >= 64)");
         }
         byte ccwNodesSize = (byte) j;
         pattern = new byte[ccwNodesSize + 2]; // +2 for size and c.valence()
@@ -1395,7 +1505,12 @@ public class Node extends Constants {
         Msg.debug("Leaving Node.createValencePattern(..)");
     }
 
-    /** Calculate the valence pattern for this node and its neighbors. */
+    /**
+     * 计算该节点及其邻居的价模式。
+     * 
+     * @param ccwNodesSize 邻居节点数量
+     * @param ccwNodes     逆时针排序的邻居节点
+     */
     public void createValencePattern(byte ccwNodesSize, Node[] ccwNodes) {
         Msg.debug("Entering Node.createValencePattern(" + ccwNodesSize + ", Node [])");
         pattern = new byte[ccwNodesSize + 2]; // +2 for size and c.valence()
@@ -1410,8 +1525,9 @@ public class Node extends Constants {
     }
 
     /**
-     * Return # of irregular nodes in the valence pattern (nodes whose valence!= 4)
-     * Note that calcMyValencePattern() must be called before calling this method.
+     * 获取价模式中不规则节点的数量（价不等于4）。
+     * 
+     * @return 不规则节点数量
      */
     public int irregNeighborNodes() {
         int count = 0;
@@ -1424,24 +1540,10 @@ public class Node extends Constants {
     }
 
     /**
-     * Compare the valence pattern of this node to the special pattern in pattern2.
-     * In pattern2, the following codes apply:<br>
-     * <ul>
-     * <li>14 means 4- (4 or less)
-     * <li>24 means 4+ (4 or more)
-     * <li>5 means 5 or more
-     * <li>0 means any number
-     * </ul>
-     * Note that the length of the patterns must be an even number. Also note that
-     * the patterns have to be aligned in a 2-byte fashion. (This means that the
-     * index into the node's pattern where they start matching have to be an even
-     * number.)
-     *
-     * @param pattern2 A valence pattern
-     * @return If they match then return the index of the valence value in the
-     *         node's pattern that corresponds to the first valence value in
-     *         pattern2, otherwise return -1. Note that calcMyValencePattern() must
-     *         be called before calling this method.
+     * 比较该节点的价模式与给定模式是否匹配。
+     * 
+     * @param pattern2 目标价模式
+     * @return 匹配返回起始索引，不匹配返回-1
      */
     public int patternMatch(byte[] pattern2) {
         Msg.debug("Entering patternMatch(..)");
@@ -1473,7 +1575,8 @@ public class Node extends Constants {
                     Msg.debug("... rolling pattern...");
                     Msg.debug("...pattern2[2]: " + pattern2[2] + ", pattern[" + j + "]: " + pattern[j]);
                     break;
-                } else if (pattern[j] == 4 && (pattern2[2] == 4 || pattern2[2] == 14 || pattern2[2] == 24 || pattern2[2] == 0)) {
+                } else if (pattern[j] == 4
+                        && (pattern2[2] == 4 || pattern2[2] == 14 || pattern2[2] == 24 || pattern2[2] == 0)) {
 
                     matches = 1;
                     jstart = j;
@@ -1508,7 +1611,8 @@ public class Node extends Constants {
                 } else if (pattern[j] == 3 && (pattern2[i] == 3 || pattern2[i] == 14 || pattern2[i] == 0)) {
                     matches++;
                     Msg.debug("...pattern2[" + i + "]: " + pattern2[i] + ", pattern[" + j + "]: " + pattern[j]);
-                } else if (pattern[j] == 4 && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
+                } else if (pattern[j] == 4
+                        && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
                     matches++;
                     Msg.debug("...pattern2[" + i + "]: " + pattern2[i] + ", pattern[" + j + "]: " + pattern[j]);
                 } else if (pattern[j] >= 5 && (pattern2[i] == 5 || pattern2[i] == 24 || pattern2[i] == 0)) {
@@ -1540,26 +1644,12 @@ public class Node extends Constants {
     }
 
     /**
-     * Compare the valence pattern of this node to the special pattern in pattern2.
-     * Also make sure that the tagged nodes in vertexPat are vertices. (That is, the
-     * interior angles must be greater than any other interior angles around this
-     * node.) In pattern2, the following codes apply:<br>
-     * <ul>
-     * <li>14 means 4- (4 or less)
-     * <li>24 means 4+ (4 or more)
-     * <li>5 means 5 or more
-     * <li>0 means any number
-     * </ul>
-     * Note that the length of the patterns must be an even number. Also note that
-     * the patterns have to be aligned in a 2-byte fashion. (This means that the
-     * index into the node's pattern where they start matching have to be an even
-     * number.)
-     *
-     * @param pattern2 A valence pattern
-     * @return If they match then return the index of the valence value in the
-     *         node's pattern that corresponds to the first valence value in
-     *         pattern2, otherwise return -1. Note that calcMyValencePattern() must
-     *         be called before calling this method.
+     * 比较该节点的价模式与给定模式是否匹配，并检查顶点模式。
+     * 
+     * @param pattern2  目标价模式
+     * @param vertexPat 顶点布尔模式
+     * @param angles    角度数组
+     * @return 匹配返回起始索引，不匹配返回-1
      */
     public int patternMatch(byte[] pattern2, boolean[] vertexPat, double[] angles) {
         Msg.debug("Entering patternMatch(byte [], boolean [], double [])");
@@ -1594,7 +1684,8 @@ public class Node extends Constants {
                         Msg.debug("...pattern2[2]: " + pattern2[2] + ", pattern[" + j + "]: " + pattern[j]);
                         break;
                     }
-                } else if (pattern[j] == 4 && (pattern2[2] == 4 || pattern2[2] == 14 || pattern2[2] == 24 || pattern2[2] == 0)) {
+                } else if (pattern[j] == 4
+                        && (pattern2[2] == 4 || pattern2[2] == 14 || pattern2[2] == 24 || pattern2[2] == 0)) {
                     if (fitsVertexPat((byte) (j - 2), angles, vertexPat, pattern[0] - 2)) {
                         matches = 1;
                         jstart = j;
@@ -1632,7 +1723,8 @@ public class Node extends Constants {
                 } else if (pattern[j] == 3 && (pattern2[i] == 3 || pattern2[i] == 14 || pattern2[i] == 0)) {
                     matches++;
                     Msg.debug("...pattern2[" + i + "]: " + pattern2[i] + ", pattern[" + j + "]: " + pattern[j]);
-                } else if (pattern[j] == 4 && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
+                } else if (pattern[j] == 4
+                        && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
                     matches++;
                     Msg.debug("...pattern2[" + i + "]: " + pattern2[i] + ", pattern[" + j + "]: " + pattern[j]);
                 } else if (pattern[j] >= 5 && (pattern2[i] == 5 || pattern2[i] == 24 || pattern2[i] == 0)) {
@@ -1658,15 +1750,13 @@ public class Node extends Constants {
     }
 
     /**
-     * Confirm whether the nodes having the given interior angles have the correct
-     * vertex pattern.
-     *
-     * @param start     start index for the ang array
-     * @param ang       an array of interior angles
-     * @param vertexPat a boolean array indicating which angles are at actual
-     *                  vertices
-     * @param len       the length of the two arrays
-     * @return True if the pattern matches. Otherwise false.
+     * 检查给定角度数组和顶点布尔模式是否匹配。
+     * 
+     * @param start     起始索引
+     * @param ang       角度数组
+     * @param vertexPat 顶点布尔模式
+     * @param len       长度
+     * @return 匹配返回true，否则返回false
      */
     public boolean fitsVertexPat(byte start, double[] ang, boolean[] vertexPat, int len) {
         Msg.debug("Entering Node.fitsVertexPat(..)");
@@ -1715,11 +1805,11 @@ public class Node extends Constants {
     }
 
     /**
-     * Fill the angles array with the angles at the opposite nodes.
-     *
-     * @param ccwNeighbors the surrounding nodes in ccw order
-     * @param len          the length of
-     * @return an array of doubles
+     * 填充角度数组，获取相邻节点的对顶角。
+     * 
+     * @param ccwNeighbors 逆时针排序的邻居节点
+     * @param len          长度
+     * @return 角度数组
      */
     public double[] surroundingAngles(Node[] ccwNeighbors, int len) {
         Msg.debug("Entering Node.surroundingAngles(..)");
@@ -1762,20 +1852,12 @@ public class Node extends Constants {
     }
 
     /**
-     * Compare the valence pattern of this boundary node to the special pattern in
-     * pattern2. In pattern2, the following codes apply:<br>
-     * <ul>
-     * <li>14 means 4- (4 or less)
-     * <li>24 means 4+ (4 or more)
-     * <li>5 means 5 or more
-     * <li>0 means any number
-     * </ul>
-     * Note that calcMyValencePattern() must be called before calling this method.
-     *
-     * @param pattern2 A valence pattern
-     * @param bpat     a boolean pattern indicating which nodes are located on the
-     *                 boundary
-     * @return If they match then return the true, otherwise return false.
+     * 比较该边界节点的价模式与给定模式是否匹配。
+     * 
+     * @param pattern2     目标价模式
+     * @param bpat         边界布尔模式
+     * @param ccwNeighbors 逆时针排序的邻居节点
+     * @return 匹配返回true，否则返回false
      */
     public boolean boundaryPatternMatch(byte[] pattern2, boolean[] bpat, Node[] ccwNeighbors) {
         Msg.debug("Entering boundaryPatternMatch(..)");
@@ -1798,7 +1880,8 @@ public class Node extends Constants {
                     return false;
                 }
                 Msg.debug("...pattern2[" + i + "]: " + pattern2[i] + ", pattern[" + i + "]: " + pattern[i]);
-            } else if (pattern[i] == 4 && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
+            } else if (pattern[i] == 4
+                    && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
                 if (bpat[i - 1] && !ccwNeighbors[i - 2].boundaryNode()) {
                     return false;
                 }
@@ -1818,24 +1901,13 @@ public class Node extends Constants {
     }
 
     /**
-     * Compare the valence pattern of this internal node to the special pattern in
-     * pattern2. The boundary pattern must also fit. In pattern2, the following
-     * codes apply:<br>
-     * <ul>
-     * <li>14 means 4- (4 or less)
-     * <li>24 means 4+ (4 or more)
-     * <li>5 means 5 or more
-     * <li>0 means any number
-     * </ul>
-     * Note that calcMyValencePattern() must be called before calling this method.
-     *
-     * @param pattern2     A valence pattern
-     * @param bpat         a boolean pattern indicating which nodes are located on
-     *                     the boundary
-     * @param ccwNeighbors the neighbor nodes in ccw order
-     * @return If they match then return the true, otherwise return false.
+     * 比较该内部节点的价模式与给定模式是否匹配，并检查边界模式。
+     * 
+     * @param pattern2     目标价模式
+     * @param bpat         边界布尔模式
+     * @param ccwNeighbors 逆时针排序的邻居节点
+     * @return 匹配返回起始索引，不匹配返回-1
      */
-
     public int boundaryPatternMatchSpecial(byte[] pattern2, boolean[] bpat, Node[] ccwNeighbors) {
 
         Msg.debug("Entering boundaryPatternMatchSpecial(..)");
@@ -1873,7 +1945,8 @@ public class Node extends Constants {
                         break;
                     }
                     Msg.debug("...pattern2[" + i + "]: " + pattern2[i] + ", pattern[" + j + "]: " + pattern[j]);
-                } else if (pattern[j] == 4 && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
+                } else if (pattern[j] == 4
+                        && (pattern2[i] == 4 || pattern2[i] == 14 || pattern2[i] == 24 || pattern2[i] == 0)) {
                     if (bpat[i - 1] && !ccwNeighbors[j - 2].boundaryNode()) {
                         match = false;
                         break;
@@ -1916,6 +1989,12 @@ public class Node extends Constants {
         return -1;
     }
 
+    /**
+     * 获取与指定节点相连的公共边。
+     * 
+     * @param n 目标节点
+     * @return 公共边，若无则返回null
+     */
     public Edge commonEdge(Node n) {
         Node other;
         for (Edge e : edgeList) {
@@ -1927,6 +2006,11 @@ public class Node extends Constants {
         return null;
     }
 
+    /**
+     * 用标准网格替换该节点（预留方法）。
+     * 
+     * @return 总是返回true
+     */
     public boolean replaceWithStdMesh() {
         Msg.debug("Entering replaceWithStdMesh(..)");
         Msg.debug("Leaving replaceWithStdMesh(..)");
@@ -1934,14 +2018,19 @@ public class Node extends Constants {
     }
 
     /**
-     * Give a string representation of the node.
-     *
-     * @return a string representation of the node.
+     * 获取节点的字符串描述。
+     * 
+     * @return 节点描述字符串
      */
     public String descr() {
         return "(" + x + ", " + y + ")";
     }
 
+    /**
+     * 获取节点的价模式描述字符串。
+     * 
+     * @return 价模式描述字符串
+     */
     public String valDescr() {
         String s = "" + pattern[1] + "-";
         for (int i = 2; i < pattern[0]; i++) {
@@ -1951,11 +2040,18 @@ public class Node extends Constants {
         return s;
     }
 
-    /** Output a string representation of the node. */
+    /**
+     * 打印节点的字符串描述。
+     */
     public void printMe() {
         System.out.println(descr());
     }
 
+    /**
+     * 获取节点的字符串描述。
+     * 
+     * @return 节点描述字符串
+     */
     @Override
     public String toString() {
         return descr();

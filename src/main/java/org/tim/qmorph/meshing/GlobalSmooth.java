@@ -10,32 +10,25 @@ import org.tim.qmorph.geom.Node;
 import org.tim.qmorph.geom.Triangle;
 import org.tim.qmorph.viewer.Msg;
 
-// ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
 /**
- * This class is an implementation of the algorithm described in the paper "An
- * approach to Combined Laplacian and Optimization-Based Smoothing for
- * Triangular, Quadrilateral and Quad-Dominant Meshes" (1998) by Cannan,
- * Tristano, and Staten.
- *
- * The meshes produced by Q-Morph are indeed highly quad-dominant, with at most
- * one single triangle, so Q-Morph should work well with this algorithm.
- *
- * Note that the boundary layer smoothing is not implemented.
+ * 全局平滑类，实现了结合Laplacian和平滑优化的网格节点平滑算法。
+ * 适用于三角形、四边形及四边形主导网格。
+ * 主要参考Cannan等人的论文（1998）。
  *
  * @author TIM
- *
  */
-// ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ---- ==== ----
-
 public class GlobalSmooth extends GeomBasics {
+    /**
+     * 构造方法，初始化GlobalSmooth对象。
+     */
     public GlobalSmooth() {
     }
 
     /**
-     * Compute the constrained Laplacian smoothed position of a node.
-     *
-     * @param n the node which is to be subjected to the smooth.
-     * @return the smoothed position of node n.
+     * 计算节点的受约束Laplacian平滑位置。
+     * 
+     * @param n 需要平滑的节点
+     * @return 平滑后新节点
      */
     private Node constrainedLaplacianSmooth(Node n) {
         Msg.debug("Entering constrainedLaplacianSmooth(..)");
@@ -111,8 +104,17 @@ public class GlobalSmooth extends GeomBasics {
     }
 
     /**
-     * @return true if the new constrained-smoothed position is acceptable according
-     *         to the criteria given in section 4.2 of the article.
+     * 判断平滑后新位置是否可接受。
+     * 
+     * @param N         邻接单元数
+     * @param Nminus    指标下降单元数
+     * @param Nplus     指标上升单元数
+     * @param Nup       指标大幅提升单元数
+     * @param Ndown     指标大幅下降单元数
+     * @param Ninverted 反转单元数
+     * @param deltaMy   指标变化均值
+     * @param theta     最大角度
+     * @return 是否可接受
      */
     private boolean acceptable(int N, int Nminus, int Nplus, int Nup, int Ndown, int Ninverted, double deltaMy,
             double theta) {
@@ -137,12 +139,11 @@ public class GlobalSmooth extends GeomBasics {
     }
 
     /**
-     * Compute the optimization-based smoothed position of a node. As described in
-     * section 5 in the paper. Warning: The fields of the argument node will be
-     * altered.
-     *
-     * @return a node with a position that is the optimaization-based smoothed
-     *         position of node n.
+     * 计算节点的基于优化的平滑位置。
+     * 
+     * @param x        需要平滑的节点
+     * @param elements 邻接单元列表
+     * @return 平滑后新节点
      */
     private Node optBasedSmooth(Node x, List<Element> elements) {
         Msg.debug("Entering optBasedSmooth(..)");
@@ -256,15 +257,22 @@ public class GlobalSmooth extends GeomBasics {
         return x;
     }
 
+    /**
+     * 网格最大边长。
+     */
     private double maxModDim = 0.0;
 
-    /** Initialize the object. */
+    /**
+     * 初始化对象。
+     */
     public void init() {
         Msg.debug("Entering GlobalSmooth.init()");
         Msg.debug("Leaving GlobalSmooth.init()");
     }
 
-    /** Perform the smoothing of the nodes in a step-wise manner. */
+    /**
+     * 步进执行全局平滑。
+     */
     @Override
     public void step() {
         Msg.debug("Entering GlobalSmooth.step()");
@@ -273,7 +281,9 @@ public class GlobalSmooth extends GeomBasics {
         Msg.debug("Leaving GlobalSmooth.step()");
     }
 
-    /** The overall smoothing algorithm from section 3 in the paper. */
+    /**
+     * 全局平滑主算法。
+     */
     public void run() {
         Msg.debug("Entering GlobalSmooth.run()");
         // Variables

@@ -22,27 +22,39 @@ import org.tim.qmorph.meshing.Constants;
 import javax.swing.*;
 
 /**
- * A class for an options dialog for supplying parameters to the Q-Morph
- * implementation.
+ * QMorph参数设置对话框类。
+ * 用于为QMorph算法提供参数输入界面，支持三角转四边形、拓扑清理、全局平滑等参数配置。
  */
 public class QMorphOptionsDialog extends JDialog implements ItemListener {
+    /** 运行状态标志 */
     boolean runState = false;
+    /** 各参数输入框 */
     JTextField epsilon1, epsilon2;
     JTextField chevronMin;
     JTextField coinctol, movetolerance, obstol, deltafactor, mymin, thetamax, tol, gamma, maxiter;
 
+    /** 各参数标签 */
     JLabel epsilon1Label, epsilon2Label;
     JLabel chevronMinLabel;
     JLabel coinctolLabel, movetoleranceLabel, obstolLabel, deltafactorLabel, myminLabel, thetamaxLabel, tolLabel,
             gammaLabel, maxiterLabel;
 
+    /** 按钮 */
     JButton run, defaults, cancel;
 
+    /** 各参数分组面板 */
     JPanel seamContainer, topoContainer, smoothContainer, buttonContainer;
+    /** 算法选项复选框 */
     JCheckBox tri2quadBox, topoBox, smoothBox;
 
+    /** 布局管理器 */
     GridBagLayout gridbag;
 
+    /**
+     * 构造方法，初始化参数对话框。
+     * 
+     * @param f 父窗口
+     */
     public QMorphOptionsDialog(JFrame f) {
         super(f, "Parameters for QMorph", true);
 
@@ -144,6 +156,11 @@ public class QMorphOptionsDialog extends JDialog implements ItemListener {
         setLocationRelativeTo(f);
     }
 
+    /**
+     * 处理复选框状态变化，启用/禁用相关参数输入框。
+     * 
+     * @param e 事件对象
+     */
     @Override
     public void itemStateChanged(ItemEvent e) {
         if (e.getSource() instanceof JCheckBox) {
@@ -189,6 +206,9 @@ public class QMorphOptionsDialog extends JDialog implements ItemListener {
         }
     }
 
+    /**
+     * 设置参数为默认值。
+     */
     public void setDefaults() {
         double tmp;
         epsilon1.setText(Double.toString(Constants.defaultE1Factor));
@@ -208,6 +228,9 @@ public class QMorphOptionsDialog extends JDialog implements ItemListener {
         repaint();
     }
 
+    /**
+     * 将界面参数同步到全局常量。
+     */
     public void copyToProgramParameters() {
         double tmp;
         Constants.EPSILON1 = java.lang.Math.PI * Double.parseDouble(epsilon1.getText().trim());
@@ -230,11 +253,24 @@ public class QMorphOptionsDialog extends JDialog implements ItemListener {
         Constants.doSmooth = smoothBox.isSelected();
     }
 
+    /**
+     * 判断"Run"按钮是否被按下。
+     * 
+     * @return 是否按下
+     */
     public boolean runPressed() {
         return runState;
     }
 
+    /**
+     * 按钮事件监听器。
+     */
     class ButtonActionListener implements ActionListener {
+        /**
+         * 处理按钮点击事件。
+         * 
+         * @param e 事件对象
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
