@@ -8,26 +8,42 @@ import org.tim.qmorph.meshing.Constants;
 import org.tim.qmorph.viewer.Msg;
 
 /**
- * This class holds information for edges, and has methods for handling issues
- * involving edges.
+ * 表示二维网格中的一条边。
+ * 
+ * <p>
+ * 这个类继承自Constants，用于存储和处理与边相关的信息。
+ * 每条边由两个节点定义，可以属于一个或两个元素（三角形或四边形）。
+ * 边可以具有前边属性，表示它是网格的前沿。
+ * 
+ * <p>
+ * 主要功能包括：
+ * <ul>
+ * <li>边的创建和管理</li>
+ * <li>计算边的长度和角度</li>
+ * <li>处理边与节点、元素的连接关系</li>
+ * <li>支持网格操作如边的交换和缝合</li>
+ * </ul>
+ * 
+ * @see Node
+ * @see Element
+ * @see Triangle
+ * @see Quad
  */
-
 public class Edge extends Constants {
 
-    public Node leftNode, rightNode; // This Edge has these two nodes
-    public Element element1 = null, element2 = null; // Belongs to these Elements (Quads/Triangles)
-    public Edge leftFrontNeighbor, rightFrontNeighbor;
-    public int level;
+    public Node leftNode, rightNode; // 这条边有两个节点
+    public Element element1 = null, element2 = null; // 属于这些元素（四边形/三角形）
+    public Edge leftFrontNeighbor, rightFrontNeighbor; // 左前邻居和右前邻居
+    public int level; // 级别
 
     public static List<List<Edge>> stateList = new ArrayList<>(3);
 
-    public boolean frontEdge = false;
-    public boolean swappable = true;
-    public boolean selectable = true;
+    public boolean frontEdge = false; // 是否是前边
+    public boolean swappable = true; // 是否可交换
+    public boolean selectable = true; // 是否可选择
     // Edge leftSide= null, rightSide= null; // Side edges when building a quad
-    public boolean leftSide = false, rightSide = false; // Indicates if frontNeighbor is
-    // to be used as side edge in quad
-    public double len; // length of this edge
+    public boolean leftSide = false, rightSide = false; // 指示前邻居是否作为四边形的边
+    public double len; // 这条边的长度
     public Color color = Color.green;
 
     public Edge(Node node1, Node node2) {
@@ -42,7 +58,7 @@ public class Edge extends Constants {
         len = computeLength();
     }
 
-    // Create a clone of Edge e with all the important fields
+    // 创建一个克隆的Edge e，所有重要的字段
     private Edge(Edge e) {
         leftNode = e.leftNode;
         rightNode = e.rightNode;
@@ -62,7 +78,11 @@ public class Edge extends Constants {
         return false;
     }
 
-    // Return a copy of the edge
+    /**
+     * 创建并返回当前边的副本。
+     *
+     * @return 当前边的副本。
+     */
     public Edge copy() {
         return new Edge(this);
     }
@@ -73,8 +93,11 @@ public class Edge extends Constants {
         stateList.add(new ArrayList<>());
     }
 
-    // Removes an Edge from the stateLists
-    // Returns true if the Edge was successfully removed, else false.
+    /**
+     * 从状态列表中删除一条边。
+     *
+     * @return 如果边成功删除，则返回true，否则返回false。
+     */
     public boolean removeFromStateList() {
         int i;
         int state = getState();
@@ -88,6 +111,12 @@ public class Edge extends Constants {
 
     // Removes an Edge from the stateLists
     // Returns true if the Edge was successfully removed, else false.
+    /**
+     * 从状态列表中移除当前对象。
+     *
+     * @param state 状态值
+     * @return 如果成功移除返回 true，否则返回 false
+     */
     public boolean removeFromStateList(int state) {
         int i;
         i = stateList.get(state).indexOf(this);
@@ -98,6 +127,15 @@ public class Edge extends Constants {
         return true;
     }
 
+    /**
+     * 获取当前边的状态值。
+     * 状态值由leftSide和rightSide两个布尔值决定：
+     * - 如果leftSide为true，状态值+1
+     * - 如果rightSide为true，状态值+1
+     * 因此状态值可能为0、1或2，表示边的不同状态。
+     * 
+     * @return 返回边的状态值(0-2)
+     */
     public int getState() {
         int ret = 0;
         if (leftSide) {
@@ -109,10 +147,21 @@ public class Edge extends Constants {
         return ret;
     }
 
+    /**
+     * 获取当前状态的值
+     *
+     * @return 返回状态值，可能的值有0, 1, 2
+     */
     public int getTrueState() {
         return getState();
     }
 
+    /**
+     * 修改左边的状态
+     *
+     * @param newLeftState 新的左状态
+     * @return 如果状态修改成功，则返回true，否则返回false
+     */
     public boolean alterLeftState(boolean newLeftState) {
         int state = getState();
         int i = stateList.get(state).indexOf(this);
@@ -128,6 +177,12 @@ public class Edge extends Constants {
         return true;
     }
 
+    /**
+     * 修改右边的状态
+     *
+     * @param newRightState 新的右状态
+     * @return 如果状态修改成功，则返回true，否则返回false
+     */
     public boolean alterRightState(boolean newRightState) {
         int state = getState();
         int i = stateList.get(state).indexOf(this);
@@ -146,6 +201,13 @@ public class Edge extends Constants {
     // Determine whether the frontNeighbor is an appropriate side Edge for a future
     // Quad with Edge e as base Edge. Return the frontNeighbor if so, else null.
     // elem== null if n.boundaryNode()== true
+    /**
+     * 计算并返回当前边的潜在侧面边。
+     *
+     * @param frontNeighbor 当前边的前邻边
+     * @param n             当前边的节点
+     * @return 如果角度小于 PI/2 + EPSILON，则返回前邻边，否则返回 null
+     */
     public Edge evalPotSideEdge(Edge frontNeighbor, Node n) {
         Msg.debug("Entering Edge.evalPotSideEdge(..)");
         Element tri = getTriangleElement(), quad = getQuadElement();
@@ -167,6 +229,13 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 确定前邻居是否是未来四边形的适当边。
+     *
+     * @param frontNeighbor 前邻居
+     * @param n             节点
+     * @return 如果前邻居是适当的边，则返回前邻居，否则返回null
+     */
     // Determine the state bit at both Nodes and set the left and right side Edges.
     // If a state bit is set, then the corresponding front neighbor Edge must get
     // Edge this as a side Edge at that Node. If it is not set, then it must get a
@@ -223,6 +292,12 @@ public class Edge extends Constants {
         Msg.debug("Leaving Edge.classifyStateOfFrontEdge()");
     }
 
+    /**
+     * 判断当前边是否是较大的过渡边。
+     *
+     * @param e 要比较的边
+     * @return 如果当前边是较大的过渡边，则返回true，否则返回false
+     */
     public boolean isLargeTransition(Edge e) {
         double ratio;
         double e1Len = length();
@@ -247,6 +322,14 @@ public class Edge extends Constants {
     // If the candidate edge is part of a large transition on the front where
     // longest - shortest length ratio > 2.5, and the candidate edge is not in
     // state 1-1, then the shorter edge is selected.
+    /**
+     * 获取下一个要处理的边。选择标准如下：
+     * 1. 边状态
+     * 2. 边级别
+     * 如果候选边是较大过渡边的一部分，且候选边不在状态1-1，则选择较短的边。
+     * 
+     * @return 下一个要处理的边
+     */
     public static Edge getNextFront(/* ArrayList frontList, */) {
         Edge current, selected = null;
         int selState, curState = 2, i;
@@ -273,7 +356,8 @@ public class Edge extends Constants {
         for (i = 0; i < stateList.get(selState).size(); i++) {
             current = stateList.get(selState).get(i);
 
-            if (current.selectable && (current.level < selected.level || (current.level == selected.level && current.length() < selected.length()))) {
+            if (current.selectable && (current.level < selected.level
+                    || (current.level == selected.level && current.length() < selected.length()))) {
                 selected = current;
             }
         }
@@ -286,7 +370,8 @@ public class Edge extends Constants {
             }
 
             if (selected.isLargeTransition(selected.rightFrontNeighbor)) {
-                if (selected.length() > selected.rightFrontNeighbor.length() && selected.rightFrontNeighbor.selectable) {
+                if (selected.length() > selected.rightFrontNeighbor.length()
+                        && selected.rightFrontNeighbor.selectable) {
                     return selected.rightFrontNeighbor;
                 }
             }
@@ -294,6 +379,12 @@ public class Edge extends Constants {
         return selected;
     }
 
+    /**
+     * 将所有可选择的元素标记为可选择的。
+     *
+     * <p>
+     * 该方法遍历嵌套列表中的所有元素，并将每个元素的 {@code selectable} 属性设置为 {@code true}。
+     */
     public static void markAllSelectable() {
         stateList.forEach(l -> {
             l.forEach(e -> {
@@ -302,6 +393,20 @@ public class Edge extends Constants {
         });
     }
 
+    /**
+     * 打印所有状态列表中的边信息。
+     * 
+     * <p>
+     * 该方法仅在调试模式下执行，会按照以下顺序打印不同状态下的边信息：
+     * <ul>
+     * <li>状态2 (1-1) 的边</li>
+     * <li>状态1 (0-1 和 1-0) 的边</li>
+     * <li>状态0 (0-0) 的边</li>
+     * </ul>
+     * 
+     * <p>
+     * 每条边的信息包括其描述（坐标）和状态值。
+     */
     public static void printStateLists() {
         if (Msg.debugMode) {
             System.out.println("frontsInState 1-1:");
@@ -319,7 +424,12 @@ public class Edge extends Constants {
         }
     }
 
-    // If e.leftNode is leftmore than this.leftNode, return true, else false
+    /**
+     * 判断当前边是否在给定边的左侧。
+     *
+     * @param e 要比较的边
+     * @return 如果当前边的左侧节点在给定边的左侧节点之前，则返回true，否则返回false
+     */
     public boolean leftTo(Edge e) {
         if ((leftNode.x < e.leftNode.x) || (leftNode.x == e.leftNode.x && leftNode.y < e.leftNode.y)) {
             return true;
@@ -328,8 +438,22 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 判断当前边是否为前沿边。
+     * 
+     * <p>
+     * 前沿边的定义是：当边的一侧是三角形元素而另一侧不是三角形元素时，该边为前沿边。
+     * 具体来说，满足以下任一条件时返回true：
+     * <ul>
+     * <li>element1是三角形且element2不是三角形</li>
+     * <li>element2是三角形且element1不是三角形</li>
+     * </ul>
+     * 
+     * @return 如果当前边是前沿边则返回true，否则返回false
+     */
     public boolean isFrontEdge() {
-        if ((element1 instanceof Triangle && !(element2 instanceof Triangle)) || (element2 instanceof Triangle && !(element1 instanceof Triangle))) {
+        if ((element1 instanceof Triangle && !(element2 instanceof Triangle))
+                || (element2 instanceof Triangle && !(element1 instanceof Triangle))) {
             return true;
         } else {
             return false;
@@ -342,19 +466,45 @@ public class Edge extends Constants {
          */
     }
 
+    /**
+     * 获取当前边的描述信息。
+     * 
+     * <p>
+     * 返回一个字符串，表示当前边的两个端点坐标。
+     * 
+     * @return 当前边的描述信息
+     */
     public String descr() {
         return "(" + leftNode.x + ", " + leftNode.y + "), (" + rightNode.x + ", " + rightNode.y + ")";
     }
 
+    /**
+     * 打印当前边的描述信息。
+     * 
+     * <p>
+     * 打印当前边的描述信息。
+     */
     public void printMe() {
         System.out.println(descr());
     }
 
+    /**
+     * 获取当前边的长度。
+     *
+     * @return 返回当前边的长度
+     */
     public double length() {
         return len;
     }
 
     // Replace this edge's node n1 with the node n2:
+    /**
+     * 替换当前边的节点n1为节点n2。
+     * 
+     * @param n1 要替换的节点
+     * @param n2 替换后的节点
+     * @return 如果替换成功则返回true，否则返回false
+     */
     public boolean replaceNode(Node n1, Node n2) {
         if (leftNode.equals(n1)) {
             leftNode = n2;
@@ -381,54 +531,85 @@ public class Edge extends Constants {
     // common
     // node of the two edges), is empty.
 
+    /**
+     * 将当前边与另一条边缝合在一起。
+     * 该方法假设两条边已经有一个共同的节点。
+     * 对于另一条边(e)的另一个节点(nKm1)的边列表中的每条边(eI):
+     * 如果eI的另一个节点不是当前边的另一个节点(nKp1)，则:
+     * 1. 如果nKp1的边列表中存在一条边(eJ)与eI共享同一个节点，则:
+     * - 移除eI
+     * - 更新相关元素的连接关系
+     * 2. 否则:
+     * - 将eI的nKm1节点替换为nKp1
+     * - 将eI添加到nKp1的边列表中
+     * 如果eI的另一个节点是nKp1，则从nKp1的边列表中移除eI
+     *
+     * @param e 要与当前边缝合的另一条边
+     */
     public void seamWith(Edge e) {
+        // 获取两条边的共同节点
         Node nK = commonNode(e);
-        Node nKp1 = otherNode(nK), nKm1 = e.otherNode(nK), other;
+        // 获取当前边的另一个节点
+        Node nKp1 = otherNode(nK);
+        // 获取另一条边的另一个节点
+        Node nKm1 = e.otherNode(nK);
+        Node other;
         boolean found = false;
         Edge eI, eJ;
 
+        // 遍历另一条边的另一个节点的所有边
         for (int i = 0; i < nKm1.edgeList.size(); i++) {
             eI = nKm1.edgeList.get(i);
             other = eI.otherNode(nKm1);
 
             if (other != nKp1) {
+                // 检查nKp1的边列表中是否存在与eI共享节点的边
                 for (int j = 0; j < nKp1.edgeList.size(); j++) {
                     eJ = nKp1.edgeList.get(j);
 
                     if (other == eJ.otherNode(nKp1)) {
                         found = true;
 
+                        // 移除eI
                         other.edgeList.remove(other.edgeList.indexOf(eI));
 
-                        if (eI.element1.firstNode == nKm1) { // Don't forget firstNode!!
+                        // 更新元素的firstNode
+                        if (eI.element1.firstNode == nKm1) {
                             eI.element1.firstNode = nKp1;
                         }
+                        // 更新元素的边连接关系
                         eI.element1.replaceEdge(eI, eJ);
                         eJ.connectToElement(eI.element1);
                         break;
                     }
                 }
                 if (!found) {
-                    if (eI.element1.firstNode == nKm1) { // Don't forget firstNode!!
+                    // 更新两个元素的firstNode
+                    if (eI.element1.firstNode == nKm1) {
                         eI.element1.firstNode = nKp1;
                     }
-                    if (eI.element2.firstNode == nKm1) { // Don't forget firstNode!!
+                    if (eI.element2.firstNode == nKm1) {
                         eI.element2.firstNode = nKp1;
                     }
 
+                    // 替换节点并更新边列表
                     eI.replaceNode(nKm1, nKp1);
                     nKp1.edgeList.add(eI);
                 } else {
                     found = false;
                 }
             } else {
-                // Remove the edge between eKp1 and eKm1 (from the edgeList of eKp1)
+                // 如果eI连接nKm1和nKp1，则从nKp1的边列表中移除eI
                 nKp1.edgeList.remove(nKp1.edgeList.indexOf(eI));
             }
         }
     }
 
-    // Return the midpoint (represented by a new Node) of this edge:
+    /**
+     * 计算并返回这条边的中点
+     * 
+     * @return 表示中点的新Node对象
+     */
     public Node midPoint() {
         double xDiff = rightNode.x - leftNode.x;
         double yDiff = rightNode.y - leftNode.y;
@@ -436,12 +617,26 @@ public class Edge extends Constants {
         return new Node(leftNode.x + xDiff * 0.5, leftNode.y + yDiff * 0.5);
     }
 
+    /**
+     * 计算并返回这条边的长度
+     * 
+     * @return 表示长度的double值
+     */
     public double computeLength() {
         double xdiff = rightNode.x - leftNode.x;
         double ydiff = rightNode.y - leftNode.y;
         return Math.sqrt(xdiff * xdiff + ydiff * ydiff);
     }
 
+    /**
+     * 计算并返回两个点之间的距离
+     * 
+     * @param x1 第一个点的x坐标
+     * @param y1 第一个点的y坐标
+     * @param x2 第二个点的x坐标
+     * @param y2 第二个点的y坐标
+     * @return 两个点之间的距离
+     */
     public double length(double x1, double y1, double x2, double y2) {
         double xdiff = x2 - x1;
         double ydiff = y2 - y1;
@@ -454,6 +649,12 @@ public class Edge extends Constants {
         return Math.sqrt(xdiff * xdiff + ydiff * ydiff);
     }
 
+    /**
+     * 计算并返回相对于x轴的角度
+     * 
+     * @param n 要计算角度的节点
+     * @return 相对于x轴的角度
+     */
     // Returns angle relative to the x-axis (which is directed from the origin (0,0)
     // to
     // the right, btw) at node n (which is leftNode or rightNode).
@@ -498,9 +699,14 @@ public class Edge extends Constants {
         }
     }
 
-    // Returns the angle from this Edge to eEdge by summing the angles of the
-    // Elements
-    // adjacent Node n.
+    /**
+     * 计算并返回从当前边到另一条边之间的角度
+     * 
+     * @param sElem 当前边所在的元素
+     * @param n     要计算角度的节点
+     * @param eEdge 另一条边
+     * @return 从当前边到另一条边之间的角度
+     */
     public double sumAngle(Element sElem, Node n, Edge eEdge) {
         Msg.debug("Entering sumAngle(..)");
         Msg.debug("this: " + descr());
@@ -561,12 +767,18 @@ public class Edge extends Constants {
         return curEdge;
     }
 
-    // Compute the internal angle between this Edge and Edge edge at Node n.
-    // Returns a positive value.
+    /**
+     * 计算当前边与给定边在指定节点处的内角。
+     * 返回一个正值。
+     * 
+     * @param edge 要计算角度的另一条边
+     * @param n    计算角度的节点
+     * @return 两条边之间的内角（弧度）
+     */
     public double computePosAngle(Edge edge, Node n) {
         double a, b, c;
         if (edge == this) {
-            Msg.warning("Edge.computePosAngle(..): The parameter Edge is the same as this Edge.");
+            Msg.warning("Edge.computePosAngle(..): 参数Edge与当前边相同。");
             return 2 * Math.PI;
         }
 
@@ -576,7 +788,7 @@ public class Edge extends Constants {
             } else if (n.equals(edge.rightNode)) {
                 c = length(rightNode, edge.leftNode);
             } else {
-                Msg.error("Edge::computePosAngle(..): These edges are not connected.");
+                Msg.error("Edge::computePosAngle(..): 这些边不相连。");
                 return 0;
             }
         } else if (rightNode.equals(n)) {
@@ -585,18 +797,18 @@ public class Edge extends Constants {
             } else if (n.equals(edge.rightNode)) {
                 c = length(leftNode, edge.leftNode);
             } else {
-                Msg.error("Edge::computePosAngle(..): These edges are not connected.");
+                Msg.error("Edge::computePosAngle(..): 这些边不相连。");
                 return 0;
             }
         } else {
-            Msg.error("Edge::computePosAngle(..): These edges are not connected.");
+            Msg.error("Edge::computePosAngle(..): 这些边不相连。");
             return 0;
         }
-        a = computeLength(); // len; // try this later...!
-        b = edge.computeLength(); // edge.len; // try this later...!
+        a = computeLength(); // len; // 稍后再试...!
+        b = edge.computeLength(); // edge.len; // 稍后再试...!
 
-        // Math.acos returns a value in the range [0, PI],
-        // and input *MUST BE STRICTLY* in the range [-1, 1] !!!!!!!!
+        // Math.acos返回[0, PI]范围内的值，
+        // 输入值*必须严格*在[-1, 1]范围内 !!!!!!!!
         // ^^^^^^^^
         double itemp = (a * a + b * b - c * c) / (2 * a * b);
         if (itemp > 1.0) {
@@ -608,8 +820,13 @@ public class Edge extends Constants {
         }
     }
 
-    // Compute the ccw directed angle between this Edge and Edge edge at Node n.
-    // Returns a positive value in range [0, 2*PI>.
+    /**
+     * 计算并返回当前边与给定边在指定节点处的逆时针方向角度。
+     * 返回一个正值，范围为[0, 2*PI>。
+     * 
+     * @param edge 要计算角度的另一条边
+     * @return 逆时针方向角度
+     */
     public double computeCCWAngle(Edge edge) {
         Node n = commonNode(edge);
         double temp = computePosAngle(edge, n);
@@ -624,7 +841,16 @@ public class Edge extends Constants {
         }
     }
 
-    // Return a common node for edges this and e
+    /**
+     * 获取当前边与给定边的共同节点。
+     * 
+     * <p>
+     * 该方法检查给定边的左右节点是否与当前边共享。
+     * 如果找到共同节点则返回该节点，否则返回null。
+     * 
+     * @param e 要检查的另一条边
+     * @return 如果存在共同节点则返回该节点，否则返回null
+     */
     public Node commonNode(Edge e) {
         if (hasNode(e.leftNode)) {
             return e.leftNode;
@@ -635,7 +861,16 @@ public class Edge extends Constants {
         }
     }
 
-    // Return a common element for edges this and e
+    /**
+     * 获取当前边与给定边的共同元素。
+     * 
+     * <p>
+     * 该方法检查给定边的两个元素是否与当前边共享。
+     * 如果找到共同元素则返回该元素，否则返回null。
+     * 
+     * @param e 要检查的另一条边
+     * @return 如果存在共同元素则返回该元素，否则返回null
+     */
     public Element commonElement(Edge e) {
         if (hasElement(e.element1)) {
             return e.element1;
@@ -646,20 +881,37 @@ public class Edge extends Constants {
         }
     }
 
-    // Add this Edge to the nodes' edgeLists. Careful, there's no safety checks!
+    /**
+     * 将当前边连接到其左右节点。
+     * 
+     * <p>
+     * 该方法将当前边添加到其左右节点的边列表中。
+     * 注意：此方法没有进行安全检查，调用前需确保边的节点已正确初始化。
+     */
     public void connectNodes() {
         leftNode.edgeList.add(this);
         rightNode.edgeList.add(this);
     }
 
-    // Remove this Edge from the nodes' edgeLists. Careful, there's no safety
-    // checks!
+    /**
+     * 从节点的边列表中移除当前边。
+     * 
+     * <p>
+     * 该方法从当前边的左右节点的边列表中移除该边。
+     * 注意：此方法没有进行安全检查，调用前需确保边的节点已正确初始化。
+     */
     public void disconnectNodes() {
         leftNode.edgeList.remove(leftNode.edgeList.indexOf(this));
         rightNode.edgeList.remove(rightNode.edgeList.indexOf(this));
     }
 
-    // Remove this Edge from the nodes' edgeLists. Safety checks...
+    /**
+     * 尝试从节点的边列表中移除当前边。
+     * 
+     * <p>
+     * 该方法从当前边的左右节点的边列表中移除该边。
+     * 注意：此方法没有进行安全检查，调用前需确保边的节点已正确初始化。
+     */
     public void tryToDisconnectNodes() {
         int i;
         i = leftNode.edgeList.indexOf(this);
@@ -672,6 +924,15 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 将当前边连接到给定的三角形元素。
+     * 
+     * <p>
+     * 该方法将当前边连接到给定的三角形元素。
+     * 如果当前边已经连接到两个元素，则输出错误信息。
+     * 
+     * @param triangle 要连接的三角形元素
+     */
     public void connectToTriangle(Triangle triangle) {
         if (hasElement(triangle)) {
             return;
@@ -681,10 +942,20 @@ public class Edge extends Constants {
         } else if (element2 == null) {
             element2 = triangle;
         } else {
-            Msg.error("Edge.connectToTriangle(..): An edge cannot be connected to more than two elements. edge= " + descr());
+            Msg.error("Edge.connectToTriangle(..): An edge cannot be connected to more than two elements. edge= "
+                    + descr());
         }
     }
 
+    /**
+     * 将当前边连接到给定的四边形元素。
+     * 
+     * <p>
+     * 该方法将当前边连接到给定的四边形元素。
+     * 如果当前边已经连接到两个元素，则输出错误信息。
+     * 
+     * @param q 要连接的四边形元素
+     */
     public void connectToQuad(Quad q) {
         if (hasElement(q)) {
             return;
@@ -698,6 +969,15 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 将当前边连接到给定的元素。
+     * 
+     * <p>
+     * 该方法将当前边连接到给定的元素。
+     * 如果当前边已经连接到两个元素，则输出错误信息。
+     * 
+     * @param elem 要连接的元素
+     */
     public void connectToElement(Element elem) {
         if (hasElement(elem)) {
             return;
@@ -712,6 +992,17 @@ public class Edge extends Constants {
     }
 
     // element1 should never be null:
+    /**
+     * 将当前边从给定的元素断开连接。
+     * 
+     * <p>
+     * 该方法将当前边从给定的元素断开连接。
+     * 如果给定的元素是element1，则将element2移动到element1的位置，并将element2设为null。
+     * 如果给定的元素是element2，则直接将element2设为null。
+     * 如果给定的元素不是当前边连接的元素，则输出错误信息。
+     * 
+     * @param elem 要断开连接的元素
+     */
     public void disconnectFromElement(Element elem) {
         if (element1 == elem) {
             element1 = element2;
@@ -724,8 +1015,15 @@ public class Edge extends Constants {
     }
 
     /**
-     * @param wrongNode a node that we don't want returned
-     * @return a node opposite to this edge in an adjacent triangle
+     * 获取与给定节点相对的节点。
+     * 
+     * <p>
+     * 该方法在相邻三角形中查找与给定节点相对的节点。
+     * 首先在element1中查找，如果找到的节点与wrongNode相同，
+     * 则在element2中继续查找。
+     * 
+     * @param wrongNode 不需要返回的节点
+     * @return 在相邻三角形中与wrongNode相对的节点
      */
     public Node oppositeNode(Node wrongNode) {
         Node candidate;
@@ -791,6 +1089,15 @@ public class Edge extends Constants {
     // = yB + xdiff*a/c
     // = yB + xdiff/c
     //
+    /**
+     * 获取与给定节点相对的单位法向量。
+     * 
+     * <p>
+     * 该方法返回一个与给定节点相对的单位法向量。
+     * 
+     * @param n 给定的节点
+     * @return 与给定节点相对的单位法向量
+     */
     public Edge unitNormalAt(Node n) {
         Msg.debug("Entering Edge.unitNormalAt(..)");
 
@@ -810,6 +1117,15 @@ public class Edge extends Constants {
         return new Edge(n, newNode);
     }
 
+    /**
+     * 获取交换后的对角线边。
+     * 
+     * <p>
+     * 该方法用于获取当前边交换对角线后的新边。
+     * 如果当前边是边界边或连接四边形，则无法交换并返回null。
+     * 
+     * @return 交换后的新边，如果无法交换则返回null
+     */
     public Edge getSwappedEdge() {
         if (element2 == null) {
             Msg.warning("getSwappedEdge: Cannot swap a boundary edge.");
@@ -830,6 +1146,17 @@ public class Edge extends Constants {
     /**
      * Swap diagonal between the edge's two triangles and update locally (To be used
      * with getSwappedEdge())
+     */
+    /**
+     * 交换对角线并更新局部元素。
+     * 
+     * <p>
+     * 该方法用于交换两个三角形之间的对角线，并更新相关的连接关系。
+     * 首先断开原有三角形的边连接，然后创建新的三角形并建立连接。
+     * 最后更新节点的边列表。
+     * 
+     * @param e 要交换的对角线边
+     * @throws IllegalStateException 如果边的两个元素未设置
      */
     public void swapToAndSetElementsFor(Edge e) {
         Msg.debug("Entering Edge.swapToAndSetElementsFor(..)");
@@ -864,10 +1191,30 @@ public class Edge extends Constants {
         Msg.debug("Leaving Edge.swapToAndSetElementsFor(..)");
     }
 
+    /**
+     * 获取从指定节点出发的向量。
+     * 
+     * <p>
+     * 该方法根据给定的起始节点返回一个向量。如果起始节点是边的左端点，
+     * 则返回从左端点到右端点的向量；如果起始节点是右端点，则返回从右端点到左端点的向量。
+     *
+     * @return 从指定节点出发的向量
+     */
     public MyVector getVector() {
         return new MyVector(leftNode, rightNode);
     }
 
+    /**
+     * 获取从指定节点出发的向量。
+     * 
+     * <p>
+     * 该方法根据给定的起始节点返回一个向量。如果起始节点是边的左端点，
+     * 则返回从左端点到右端点的向量；如果起始节点是右端点，则返回从右端点到左端点的向量。
+     * 如果给定的节点不是边的端点，则返回null并输出错误信息。
+     * 
+     * @param origin 向量的起始节点
+     * @return 从指定节点出发的向量，如果节点不是边的端点则返回null
+     */
     public MyVector getVector(Node origin) {
         if (origin.equals(leftNode)) {
             return new MyVector(leftNode, rightNode);
@@ -879,6 +1226,15 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 检查当前边是否与三角形相邻。
+     * 
+     * <p>
+     * 该方法检查当前边的两个元素是否包含三角形。
+     * 如果任一元素是三角形，则返回true，否则返回false。
+     * 
+     * @return 如果与三角形相邻则返回true，否则返回false
+     */
     public boolean bordersToTriangle() {
         if (element1 instanceof Triangle) {
             return true;
@@ -889,6 +1245,15 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 检查当前边是否为边界边。
+     * 
+     * <p>
+     * 该方法检查当前边的两个元素是否为空。
+     * 如果任一元素为空，则返回true，否则返回false。
+     * 
+     * @return 如果是边界边则返回true，否则返回false
+     */
     public boolean boundaryEdge() {
         if (element1 == null || element2 == null) {
             return true;
@@ -897,6 +1262,15 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 检查当前边是否为边界边或三角形边。
+     * 
+     * <p>
+     * 该方法检查当前边的两个元素是否为空或是否为三角形。
+     * 如果任一元素为空或为三角形，则返回true，否则返回false。
+     * 
+     * @return 如果是边界边或三角形边则返回true，否则返回false
+     */
     public boolean boundaryOrTriangleEdge() {
         if (element1 == null || element2 == null || element1 instanceof Triangle || element2 instanceof Triangle) {
             return true;
@@ -905,6 +1279,16 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 检查当前边是否包含给定的节点。
+     * 
+     * <p>
+     * 该方法检查当前边的两个端点是否与给定的节点相同。
+     * 如果找到相同节点则返回true，否则返回false。
+     * 
+     * @param n 要检查的节点
+     * @return 如果包含给定节点则返回true，否则返回false
+     */
     public boolean hasNode(Node n) {
         if (leftNode == n || rightNode == n) {
             return true;
@@ -913,6 +1297,16 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 检查当前边是否包含给定的元素。
+     * 
+     * <p>
+     * 该方法检查当前边的两个元素是否与给定的元素相同。
+     * 如果找到相同元素则返回true，否则返回false。
+     * 
+     * @param elem 要检查的元素
+     * @return 如果包含给定元素则返回true，否则返回false
+     */
     public boolean hasElement(Element elem) {
         if (element1 == elem || element2 == elem) {
             return true;
@@ -921,14 +1315,29 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 判断前方邻居是否有为false的
+     *
+     * @return 如果前方邻居存在且为false，返回true；否则返回false
+     */
     public boolean hasFalseFrontNeighbor() {
-        if (leftFrontNeighbor == null || !leftFrontNeighbor.frontEdge || rightFrontNeighbor == null || !rightFrontNeighbor.frontEdge) {
+        if (leftFrontNeighbor == null || !leftFrontNeighbor.frontEdge || rightFrontNeighbor == null
+                || !rightFrontNeighbor.frontEdge) {
             return true;
         } else {
             return false;
         }
     }
 
+    /**
+     * 检查当前边是否具有给定的前邻居边。
+     * 
+     * <p>
+     * 该方法检查给定的边是否与当前边的左前邻居或右前邻居相同。
+     * 
+     * @param e 要检查的前邻居边
+     * @return 如果给定的边是当前边的左前邻居或右前邻居则返回true，否则返回false
+     */
     public boolean hasFrontNeighbor(Edge e) {
         if (leftFrontNeighbor == e || rightFrontNeighbor == e) {
             return true;
@@ -937,6 +1346,15 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 获取当前边的另一个节点。
+     * 
+     * <p>
+     * 该方法返回当前边上除给定节点外的另一个节点。
+     * 
+     * @param n 当前边上的一个节点
+     * @return 当前边的另一个节点
+     */
     public Node otherNode(Node n) {
         if (n.equals(leftNode)) {
             return rightNode;
@@ -951,11 +1369,14 @@ public class Edge extends Constants {
     }
 
     /**
-     * Extend this edge at a given node and to a given lenth.
+     * 在给定节点处延长当前边到给定的长度。
      *
-     * @param length the new length of this edge
-     * @param nJ     the node from which the edge is extended
-     * @return the other node on the new edge
+     * <p>
+     * 该方法在给定节点处延长当前边到给定的长度，并返回另一个节点。
+     * 
+     * @param length 新长度
+     * @param nJ     从该节点开始延长边
+     * @return 新边的另一个节点
      */
     public Node otherNodeGivenNewLength(double length, Node nJ) {
         // First find the angle between the existing edge and the x-axis:
@@ -967,7 +1388,14 @@ public class Edge extends Constants {
         return new Node(v.origin.x + v.x, v.origin.y + v.y);
     }
 
-    // Prefers the left node if they are at equal y positions
+    /**
+     * 如果两个节点在同一水平位置，则优先选择左节点。
+     *
+     * <p>
+     * 该方法返回当前边上较高（y坐标较大）的节点。
+     * 
+     * @return 较高（y坐标较大）的节点
+     */
     public Node upperNode() {
         if (leftNode.y >= rightNode.y) {
             return leftNode;
@@ -976,7 +1404,11 @@ public class Edge extends Constants {
         }
     }
 
-    // Prefers the right node if they are at equal y positions
+    /**
+     * 如果两个节点在同一水平位置，则优先选择右节点。
+     * 
+     * @return 较低（y坐标较小）的节点
+     */
     public Node lowerNode() {
         if (rightNode.y <= leftNode.y) {
             return rightNode;
@@ -986,10 +1418,14 @@ public class Edge extends Constants {
     }
 
     /**
-     * Return true if the 1-orbit around this.commonNode(e) through quad startQ from
-     * edge this to edge e doesn't contain any triangle elements. If node n lies on
-     * the boundary, and the orbit contains a hole, the orbit simply skips the hole
-     * and continues on the other side.
+     * 
+     * <p>
+     * 该方法检查从当前边到给定边e的1-轨道是否不包含任何三角形元素。
+     * 如果节点n位于边界上，并且轨道包含一个孔，则轨道简单地跳过孔并继续在另一侧。
+     * 
+     * @param e      要检查的边
+     * @param startQ 起始四边形
+     * @return 如果1-轨道中没有三角形元素则返回true，否则返回false
      */
     public boolean noTrianglesInOrbit(Edge e, Quad startQ) {
         Msg.debug("Entering Edge.noTrianglesInOrbit(..)");
@@ -1022,6 +1458,15 @@ public class Edge extends Constants {
         return true;
     }
 
+    /**
+     * 查找当前边的左前邻居。
+     * 
+     * <p>
+     * 该方法查找当前边的左前邻居，并返回找到的邻居边。
+     * 
+     * @param frontList2 前邻居列表
+     * @return 左前邻居边
+     */
     public Edge findLeftFrontNeighbor(List<Edge> frontList2) {
         List<Edge> list = new ArrayList<>();
         Edge candidate = null;
@@ -1057,6 +1502,15 @@ public class Edge extends Constants {
         return null;
     }
 
+    /**
+     * 查找当前边的右前邻居。
+     * 
+     * <p>
+     * 该方法查找当前边的右前邻居，并返回找到的邻居边。
+     * 
+     * @param frontList2 前邻居列表
+     * @return 右前邻居边
+     */
     public Edge findRightFrontNeighbor(List<Edge> frontList2) {
         List<Edge> list = new ArrayList<>();
         Edge candidate = null;
@@ -1076,7 +1530,8 @@ public class Edge extends Constants {
             for (Edge rightEdge : list) {
                 curAng = sumAngle(t, rightNode, rightEdge);
 
-                Msg.debug("findRightFrontNeighbor(): Angle between edge this: " + descr() + " and edge " + rightEdge.descr() + ": " + curAng);
+                Msg.debug("findRightFrontNeighbor(): Angle between edge this: " + descr() + " and edge "
+                        + rightEdge.descr() + ": " + curAng);
                 if (curAng < candAng) {
                     candAng = curAng;
                     candidate = rightEdge;
@@ -1092,7 +1547,14 @@ public class Edge extends Constants {
         return null;
     }
 
-    /** Set the appropriate front neighbor to edge e. */
+    /**
+     * 设置适当的邻居边。
+     * 
+     * <p>
+     * 该方法设置适当的邻居边，并更新当前边的左前邻居和右前邻居。
+     * 
+     * @param e 要设置的邻居边
+     */
     public void setFrontNeighbor(Edge e) {
         if (e.hasNode(leftNode)) {
             leftFrontNeighbor = e;
@@ -1104,6 +1566,16 @@ public class Edge extends Constants {
     }
 
     /** Returns true if the frontEdgeNeighbors are changed. */
+    /**
+     * 设置当前边的左前邻居和右前邻居。
+     * 
+     * <p>
+     * 该方法根据给定的前边列表，查找并设置当前边的左前邻居和右前邻居。
+     * 同时确保邻居边也正确设置当前边作为其邻居。
+     * 
+     * @param frontList2 前边列表，用于查找邻居边
+     * @return 如果邻居边发生变化则返回true，否则返回false
+     */
     public boolean setFrontNeighbors(List<Edge> frontList2) {
         Edge lFront = findLeftFrontNeighbor(frontList2);
         Edge rFront = findRightFrontNeighbor(frontList2);
@@ -1125,6 +1597,15 @@ public class Edge extends Constants {
         return res;
     }
 
+    /**
+     * 将当前边提升为前边。
+     * 
+     * <p>
+     * 如果当前边还不是前边，则将其添加到前边列表中，并设置其级别和前边标志。
+     * 
+     * @param level     要设置的级别
+     * @param frontList 前边列表，用于添加当前边
+     */
     public void promoteToFront(int level, List<Edge> frontList) {
         if (!frontEdge) {
             frontList.add(this);
@@ -1133,6 +1614,16 @@ public class Edge extends Constants {
         }
     }
 
+    /**
+     * 将当前边从前边列表中移除。
+     * 
+     * <p>
+     * 该方法将当前边从前边列表中移除，并设置其前边标志为false。
+     * 如果当前边在前边列表中，则移除并返回true；否则返回false。
+     * 
+     * @param frontList2 要从中移除当前边的前边列表
+     * @return 如果成功移除则返回true，否则返回false
+     */
     public boolean removeFromFront(List<Edge> frontList2) {
         int i = frontList2.indexOf(this);
         frontEdge = false;
@@ -1145,15 +1636,26 @@ public class Edge extends Constants {
     }
 
     /**
-     * Halve this Edge by introducing a new Node at the midpoint, and create two
-     * Edges from this midpoint to the each of the two opposite Nodes of Edge this:
-     * one in element1 and one in element2. Also create two new Edges from Node mid
-     * to the two Nodes of Edge this. Create four new Triangles. Update everything
-     * (also remove this Edge from edgeList and disconnect the nodes).
-     *
-     * @return the new Edge incident with Node ben.
+     * 在指定节点处分割三角形。
+     * 
+     * <p>
+     * 该方法通过引入新节点nN来分割当前边，并创建新的边和三角形。
+     * 具体步骤：
+     * 1. 创建从当前边的左右节点到nN的新边
+     * 2. 创建从nN到两个相邻三角形对边的对角线
+     * 3. 创建四个新的三角形
+     * 4. 更新节点和边的连接关系
+     * 5. 更新全局列表
+     * 
+     * @param nN           要插入的新节点
+     * @param ben          基准节点，用于确定返回哪条新边
+     * @param triangleList 三角形列表，用于更新
+     * @param edgeList     边列表，用于更新
+     * @param nodeList     节点列表，用于更新
+     * @return 与基准节点ben相连的新边，如果未找到则返回null
      */
-    public Edge splitTrianglesAt(Node nN, Node ben, List<Triangle> triangleList, List<Edge> edgeList, List<Node> nodeList) {
+    public Edge splitTrianglesAt(Node nN, Node ben, List<Triangle> triangleList, List<Edge> edgeList,
+            List<Node> nodeList) {
         Msg.debug("Entering Edge.splitTrianglesAt(..)");
         Edge eK1 = new Edge(leftNode, nN);
         Edge eK2 = new Edge(rightNode, nN);
@@ -1224,12 +1726,20 @@ public class Edge extends Constants {
     }
 
     /**
-     * Make new triangles by introducing new Edges at this' midpoint.
-     *
-     * @return the "lower" (the one incident with the baseEdge) of the two edges
-     *         created from splitting this edge.
+     * 在当前边的中点处分割相邻的三角形。
+     * 
+     * <p>
+     * 该方法在当前边的中点创建一个新节点，并使用该节点将相邻的三角形分割成新的三角形。
+     * 新创建的节点会被添加到节点列表中，并设置为蓝色。
+     * 
+     * @param triangleList 三角形列表，用于存储新创建的三角形
+     * @param edgeList     边列表，用于存储新创建的边
+     * @param nodeList     节点列表，用于存储新创建的节点
+     * @param baseEdge     基准边，用于确定分割方向
+     * @return 与基准边相邻的新创建的边
      */
-    public Edge splitTrianglesAtMyMidPoint(List<Triangle> triangleList, List<Edge> edgeList, List<Node> nodeList, Edge baseEdge) {
+    public Edge splitTrianglesAtMyMidPoint(List<Triangle> triangleList, List<Edge> edgeList, List<Node> nodeList,
+            Edge baseEdge) {
         Msg.debug("Entering Edge.splitTrianglesAtMyMidPoint(..).");
 
         Edge lowerEdge;
@@ -1248,17 +1758,14 @@ public class Edge extends Constants {
     }
 
     /**
-     * Find the next edge adjacent a quad element, starting at this edge which is
-     * part of a given element and which is adjacent a given node. Note that the
-     * method stops if the boundary is encountered.
+     * 查找与四边形元素相邻的下一条边，从当前边开始，该边是给定元素的一部分且与给定节点相邻。
+     * 注意：如果遇到边界，该方法将停止。
      *
-     * @param n         the node
-     * @param startElem
-     * @return the first edge of a quad found when parsing around node n, starting
-     *         at edge e in element startElem and moving in the direction from e to
-     *         e's neighbor edge at n in startElem. If startElem happens to be a
-     *         quad, the method won't consider that particular quad. If
-     *         unsuccessful, the method returns null.
+     * @param n         节点
+     * @param startElem 起始元素
+     * @return 在节点n周围遍历时找到的第一条四边形边，从元素startElem中的边e开始，
+     *         沿着从e到startElem中n处e的相邻边的方向移动。如果startElem恰好是一个四边形，
+     *         该方法将不会考虑该特定四边形。如果未找到，则返回null。
      */
     public Edge nextQuadEdgeAt(Node n, Element startElem) {
         Msg.debug("Entering Edge.nextQuadEdgeAt(..)");
@@ -1283,9 +1790,17 @@ public class Edge extends Constants {
         }
     }
 
-    // Returns a neighboring element that is a quad. When applied to inner front
-    // edges,
-    // there are, of course, only one possible quad to return.
+    // 返回一个相邻的四边形元素。当应用于内部前边时，
+    // 当然只有一个可能的四边形可以返回。
+    /**
+     * 获取与当前边相邻的四边形元素。
+     * 
+     * <p>
+     * 该方法检查当前边的两个相邻元素，如果其中一个是四边形则返回该四边形。
+     * 如果两个元素都不是四边形，则返回null。
+     * 
+     * @return 如果存在相邻的四边形元素则返回该四边形，否则返回null
+     */
     public Quad getQuadElement() {
         if (element1 instanceof Quad) {
             return (Quad) element1;
@@ -1296,9 +1811,14 @@ public class Edge extends Constants {
         }
     }
 
-    // Returns a neighboring element that is a triangle. The method should work as
-    // long
-    // as it is applied to a front edge.
+    /**
+     * 返回一个相邻的元素，该元素是一个三角形。该方法应该在任何前边上都能正常工作。
+     * 
+     * <p>
+     * 该方法返回一个相邻的元素，该元素是一个三角形。该方法应该在任何前边上都能正常工作。
+     * 
+     * @return 相邻的三角形元素
+     */
     public Triangle getTriangleElement() {
         if (element1 instanceof Triangle) {
             return (Triangle) element1;
@@ -1310,6 +1830,16 @@ public class Edge extends Constants {
     }
 
     /** Return the neighboring quad that is also a neighbor of edge e. */
+    /**
+     * 获取与当前边和指定边都相邻的四边形元素。
+     * 
+     * <p>
+     * 该方法检查当前边的两个相邻元素，如果其中一个是四边形且包含指定的边，
+     * 则返回该四边形。如果不存在这样的四边形，则返回null。
+     * 
+     * @param e 要检查的另一条边
+     * @return 如果存在同时包含当前边和指定边的四边形元素则返回该四边形，否则返回null
+     */
     public Quad getQuadWithEdge(Edge e) {
         if (element1 instanceof Quad && element1.hasEdge(e)) {
             return (Quad) element1;
@@ -1321,6 +1851,16 @@ public class Edge extends Constants {
     }
 
     /** Return the front neighbor edge at node n. */
+    /**
+     * 获取与指定节点相邻的前边。
+     * 
+     * <p>
+     * 该方法检查当前边的两个前邻居，如果其中一个邻居的公共节点是给定的节点n，
+     * 则返回该邻居。否则返回null。
+     * 
+     * @param n 要检查的节点
+     * @return 与指定节点相邻的前边，如果存在则返回该前边，否则返回null
+     */
     public Edge frontNeighborAt(Node n) {
         if (leftFrontNeighbor != null && commonNode(leftFrontNeighbor) == n) {
             return leftFrontNeighbor;
@@ -1332,6 +1872,16 @@ public class Edge extends Constants {
     }
 
     /** @return the front neighbor next to this (not the prev edge). */
+    /**
+     * 获取当前边的下一个前邻居边。
+     * 
+     * <p>
+     * 该方法返回当前边的另一个前邻居边，该邻居边不是给定的前一个边。
+     * 如果找不到合适的前邻居边，则返回null并输出错误信息。
+     * 
+     * @param prev 前一个前邻居边
+     * @return 下一个前邻居边，如果找不到则返回null
+     */
     public Edge nextFrontNeighbor(Edge prev) {
         if (leftFrontNeighbor != prev) {
             return leftFrontNeighbor;
@@ -1347,6 +1897,17 @@ public class Edge extends Constants {
     // definition,
     // and that is part of the same loop as this edge.
     // Assumes that this is a true front edge.
+    /**
+     * 获取与指定节点相邻的真实前边。
+     * 
+     * <p>
+     * 该方法在当前边所在的三角形网格中，沿着与指定节点相邻的边进行遍历，
+     * 直到找到一个真实的前边。该方法假设当前边是一个真实的前边。
+     * 
+     * @param n 要检查的节点
+     * @return 与指定节点相邻的真实前边
+     * @throws IllegalStateException 如果当前边不包含指定的节点
+     */
     public Edge trueFrontNeighborAt(Node n) {
         Element curElem = getTriangleElement();
         Edge curEdge = this;

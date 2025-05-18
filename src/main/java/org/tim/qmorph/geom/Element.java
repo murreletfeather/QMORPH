@@ -1,94 +1,90 @@
 package org.tim.qmorph.geom;
 
-
 import org.tim.qmorph.meshing.Constants;
 
 /**
- * This class declares methods and variables that are common to quads and
- * triangles.
+ * 这个类声明了四边形和三角形共有的方法和变量。
  */
 
 public abstract class Element extends Constants {
 
-    /** An array of interior angles */
+    /** 内部角度数组 */
     public double[] ang;
-    /** An array of edges */
+    /** 边数组 */
     public Edge[] edgeList;
-    /** Node used for determining inversion, amonst other things. */
+    /** 用于确定反转的节点，以及其他一些东西。 */
     public Node firstNode;
     /**
-     * Doubles to hold the cur. distortion metric and the metric after perturbation
+     * 双精度浮点数，用于存储当前的畸变度量和畸变度量在扰动后的值
      */
     public double distortionMetric, newDistortionMetric;
-    /** Doubles to hold the gradient vector */
+    /** 双精度浮点数，用于存储梯度向量 */
     public double gX, gY;
 
-    /** @return neighbor element sharing edge e */
+    /** @return 共享边e的相邻元素 */
     public abstract Element neighbor(Edge e);
 
-    /** @return local angle inside element at Node n */
+    /** @return 元素内部节点n处的局部角度 */
     public abstract double angle(Edge e, Node n);
 
-    /** Compute and set the angles at the nodes of the element. */
+    /** 计算并设置元素节点的角度 */
     public abstract void updateAngles();
 
     /**
-     * Compute and set the angle at this particular Node incident with this Element
-     * Edge
+     * 计算并设置此特定节点与该元素边相交的角度
      */
     public abstract void updateAngle(Node n);
 
-    /** @return description string for element (list of node coordinates) */
+    /** @return 元素的描述字符串（节点坐标列表） */
     public abstract String descr();
 
-    /** Output description string for element (list of node coordinates) */
+    /** 输出元素的描述字符串（节点坐标列表） */
     public abstract void printMe();
 
-    /** Verify that the quad has the specified edge. */
+    /** 验证元素是否具有指定的边。 */
     public abstract boolean hasEdge(Edge e);
 
-    /** Verify that the quad has the specified node. */
+    /** 验证元素是否具有指定的节点。 */
     public abstract boolean hasNode(Node n);
 
-    /** Verify that the area of the quad is greater than 0. */
+    /** 验证元素的面积是否大于0。 */
     public abstract boolean areaLargerThan0();
 
-    /** Return local neighboring edge at node n. */
+    /** 返回节点n处的局部相邻边。 */
     public abstract Edge neighborEdge(Node n, Edge e);
 
-    /** Return the index to this edge in this element's edgeList */
+    /** 返回此元素的边列表中此边的索引。 */
     public abstract int indexOf(Edge e);
 
-    /** Return the index to this angle in this element's ang array */
+    /** 返回此角度在此元素的ang数组中的索引。 */
     public abstract int angleIndex(Edge e1, Edge e2);
 
     public abstract int angleIndex(Node n);
 
-    /** Return the angle between this Element's Edges e1 and e2. */
+    /** 返回此元素的边e1和e2之间的角度。 */
     public abstract double angle(Edge e1, Edge e2);
 
-    /** @return true if the element has become inverted */
+    /** @return true if the元素已经反转 */
     public abstract boolean inverted();
 
-    /** @return true if the element has become inverted or its area is zero. */
+    /** @return true if the元素已经反转或其面积为零。 */
     public abstract boolean invertedOrZeroArea();
 
-    /** @return true if the element has a concavity at its Node n. */
+    /** @return true if the元素在其节点n处有凹凸。 */
     public abstract boolean concavityAt(Node n);
 
-    /** Replace one of the specified edges e with a replacement edge. */
+    /** 用替换边替换指定边e。 */
     public abstract void replaceEdge(Edge e, Edge replacement);
 
-    /** Make one element pointer of each Edge in edgeList point to this Element. */
+    /** 使edgeList中每个Edge的元素指针指向此元素。 */
     public abstract void connectEdges();
 
     /**
-     * Point the element pointer of each Edge in edgeList that previously pointed to
-     * this Element to point to null.
+     * 使edgeList中每个Edge的元素指针指向null。
      */
     public abstract void disconnectEdges();
 
-    /** Create a simple element for testing purposes only. */
+    /** 为测试目的创建一个简单的元素。 */
     public abstract Element elementWithExchangedNodes(Node original, Node replacement);
 
     /**
@@ -98,35 +94,35 @@ public abstract class Element extends Constants {
     public abstract boolean invertedWhenNodeRelocated(Node n1, Node n2);
 
     /**
-     * Update the distortion metric according to the article "An approach to
-     * Combined Laplacian and Optimization-Based Smoothing for Triangular,
-     * Quadrilateral and Quad-Dominant Meshes" by by Cannan, Tristano, and Staten
+     * 根据文章“An approach to Combined Laplacian and Optimization-Based Smoothing for
+     * Triangular, Quadrilateral and Quad-Dominant Meshes”
+     * 更新畸变度量。
      */
     public abstract void updateDistortionMetric();
 
-    /** Return the length of the longest Edge. */
+    /** 返回最长边的长度。 */
     public abstract double longestEdgeLength();
 
-    /** Return the size of the largest angle. */
+    /** 返回最大角度的大小。 */
     public abstract double largestAngle();
 
-    /** Return the node at the largest interior angle. */
+    /** 返回最大角度处的节点。 */
     public abstract Node nodeAtLargestAngle();
 
-    /** Set the color of the edges to red. */
+    /** 将边标记为红色。 */
     public abstract void markEdgesIllegal();
 
-    /** Set the color of the edges to green. */
+    /** 将边的颜色设置为绿色。 */
     public abstract void markEdgesLegal();
 
     /**
-     * A method for fast computation of the cross product of two vectors.
+     * 一个用于快速计算两个向量叉积的方法。
      *
-     * @param o1 origin of first vector
-     * @param p1 endpoint of first vector
-     * @param o2 origin of second vector
-     * @param p2 endpoint of second vector
-     * @return the cross product of the two vectors
+     * @param o1 第一个向量的原点
+     * @param p1 第一个向量的终点
+     * @param o2 第二个向量的原点
+     * @param p2 第二个向量的终点
+     * @return 两个向量的叉积
      */
     protected double cross(Node o1, Node p1, Node o2, Node p2) {
         double x1 = p1.x - o1.x;

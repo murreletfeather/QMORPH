@@ -19,10 +19,10 @@ class GControls extends JPanel {
     JLabel nodesLabel;
 
     /**
-     * Constructor for the panel.
+     * 构造函数，初始化GControls对象
      *
-     * @param gui  a pointer to the GUI instance
-     * @param cvas a pointer to the Canvas instance
+     * @param gui  指向GUI实例的指针
+     * @param cvas 指向Canvas实例的指针
      */
     public GControls(GUI gui, GCanvas cvas) {
         this.gui = gui;

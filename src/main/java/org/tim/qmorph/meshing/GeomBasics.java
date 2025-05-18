@@ -18,8 +18,8 @@ import org.tim.qmorph.geom.Triangle;
 import org.tim.qmorph.viewer.Msg;
 
 /**
- * This is a basic geometry class with methods for reading and writing meshes,
- * sorting Node lists, printing lists, topology inspection, etc.
+ * 这是一个基础几何类，包含读取和写入网格、
+ * 排序节点列表、打印列表、拓扑检查等方法。
  */
 
 public class GeomBasics extends Constants {
@@ -55,41 +55,51 @@ public class GeomBasics extends Constants {
         meshAngOpt = ang;
     }
 
-    /** Return the edgeList */
+    /** 返回边列表 */
     public static List<Edge> getEdgeList() {
         return edgeList;
     }
 
-    /** Return the nodeList */
+    /** 返回节点列表 */
     public static List<Node> getNodeList() {
         return nodeList;
     }
 
-    /** Return the triangleList */
+    /** 返回三角形列表 */
     public static List<Triangle> getTriangleList() {
         return triangleList;
     }
 
-    /** Return the elementList */
+    /** 返回元素列表 */
     public static List<Element> getElementList() {
         return elementList;
     }
 
     private static GeomBasics curMethod = null;
 
+    /**
+     * 设置当前方法
+     *
+     * @param method 当前方法
+     */
     public static void setCurMethod(GeomBasics method) {
         curMethod = method;
     }
 
+    /**
+     * 获取当前的方法对象
+     *
+     * @return 返回当前的方法对象
+     */
     public static GeomBasics getCurMethod() {
         return curMethod;
     }
 
-    /** This method should be implemented in each of the subclasses. */
+    /** 此方法应在每个子类中实现。 */
     public void step() {
     }
 
-    /** Delete all the edges in the mesh. */
+    /** 删除网格中的所有边。 */
     public static void clearEdges() {
         Element curElem;
         for (Object element : elementList) {
@@ -116,7 +126,7 @@ public class GeomBasics extends Constants {
         edgeList.clear();
     }
 
-    /** Clear the nodeList, edgeList, triangleList and elementList. */
+    /** 清除nodeList、edgeList、triangleList和elementList。 */
     public static void clearLists() {
         if (nodeList != null) {
             nodeList.clear();
@@ -140,7 +150,7 @@ public class GeomBasics extends Constants {
         }
     }
 
-    /** Update distortion metric for all elements in mesh. */
+    /** 更新网格中所有单元的畸变度量。 */
     public static void updateMeshMetrics() {
         Triangle tri;
         Element elem;
@@ -161,7 +171,7 @@ public class GeomBasics extends Constants {
         }
     }
 
-    /** @return a string containing the average and minimum element metrics. */
+    /** @return 返回包含平均和最小元素度量的字符串。 */
     public static String meshMetricsReport() {
         Triangle tri;
         Quad q;
@@ -252,7 +262,8 @@ public class GeomBasics extends Constants {
             s = s + "Number of nodes with valence > 6: " + noXvalents + "\n";
         }
 
-        s = s + "Number of quadrilateral elements: " + nQuads + "\n" + "Number of triangular elements: " + nTris + "\n" + "Number of edges: " + edgeList.size()
+        s = s + "Number of quadrilateral elements: " + nQuads + "\n" + "Number of triangular elements: " + nTris + "\n"
+                + "Number of edges: " + edgeList.size()
                 + "\n" + "Number of nodes: " + nodeList.size();
 
         return s;
@@ -317,7 +328,8 @@ public class GeomBasics extends Constants {
                 if (e == null) {
                     Msg.warning("Node " + n.descr() + " has a null in its edgeList.");
                 } else if (edgeList.indexOf(e) == -1) {
-                    Msg.warning("Edge " + e.descr() + " found in the edgeList of Node " + n.descr() + ", but not in global edgeList");
+                    Msg.warning("Edge " + e.descr() + " found in the edgeList of Node " + n.descr()
+                            + ", but not in global edgeList");
                 }
             }
         }
@@ -363,15 +375,18 @@ public class GeomBasics extends Constants {
         for (Object element : triangleList) {
             t = (Triangle) element;
             if (!t.edgeList[0].hasElement(t)) {
-                Msg.warning("edgeList[0] of triangle " + t.descr() + " has not got that triangle as an adjacent element");
+                Msg.warning(
+                        "edgeList[0] of triangle " + t.descr() + " has not got that triangle as an adjacent element");
             }
 
             if (!t.edgeList[1].hasElement(t)) {
-                Msg.warning("edgeList[1] of triangle " + t.descr() + " has not got that triangle as an adjacent element");
+                Msg.warning(
+                        "edgeList[1] of triangle " + t.descr() + " has not got that triangle as an adjacent element");
             }
 
             if (!t.edgeList[2].hasElement(t)) {
-                Msg.warning("edgeList[2] of triangle " + t.descr() + " has not got that triangle as an adjacent element");
+                Msg.warning(
+                        "edgeList[2] of triangle " + t.descr() + " has not got that triangle as an adjacent element");
             }
 
             if (t.edgeList[0].commonNode(t.edgeList[1]) == null) {
@@ -405,15 +420,18 @@ public class GeomBasics extends Constants {
                 q = (Quad) elem;
 
                 if (!q.edgeList[base].hasElement(q)) {
-                    Msg.warning("edgeList[base] of quad " + q.descr() + " has not got that quad as an adjacent element");
+                    Msg.warning(
+                            "edgeList[base] of quad " + q.descr() + " has not got that quad as an adjacent element");
                 }
 
                 if (!q.edgeList[left].hasElement(q)) {
-                    Msg.warning("edgeList[left] of quad " + q.descr() + " has not got that quad as an adjacent element");
+                    Msg.warning(
+                            "edgeList[left] of quad " + q.descr() + " has not got that quad as an adjacent element");
                 }
 
                 if (!q.edgeList[right].hasElement(q)) {
-                    Msg.warning("edgeList[right] of quad " + q.descr() + " has not got that quad as an adjacent element");
+                    Msg.warning(
+                            "edgeList[right] of quad " + q.descr() + " has not got that quad as an adjacent element");
                 }
 
                 if (!q.isFake && !q.edgeList[top].hasElement(q)) {
@@ -732,7 +750,8 @@ public class GeomBasics extends Constants {
      * Method for writing to a LaTeX drawing format (need the epic and eepic
      * packages).
      */
-    public static boolean exportMeshToLaTeX(String filename, int unitlength, double xcorr, double ycorr, boolean visibleNodes) {
+    public static boolean exportMeshToLaTeX(String filename, int unitlength, double xcorr, double ycorr,
+            boolean visibleNodes) {
         FileOutputStream fos;
         Edge edge;
         Node n;
@@ -857,14 +876,16 @@ public class GeomBasics extends Constants {
                         x4 = q.edgeList[right].otherNode(q.edgeList[base].rightNode).x;
                         y4 = q.edgeList[right].otherNode(q.edgeList[base].rightNode).y;
 
-                        out.write(x1 + ", " + y1 + ", " + x2 + ", " + y2 + ", " + x3 + ", " + y3 + ", " + x4 + ", " + y4);
+                        out.write(
+                                x1 + ", " + y1 + ", " + x2 + ", " + y2 + ", " + x3 + ", " + y3 + ", " + x4 + ", " + y4);
                     } else {
                         t = (Triangle) elem;
                         x1 = t.edgeList[0].leftNode.x;
                         y1 = t.edgeList[0].leftNode.y;
                         x2 = t.edgeList[0].rightNode.x;
                         y2 = t.edgeList[0].rightNode.y;
-                        if (!t.edgeList[1].leftNode.equals(t.edgeList[0].leftNode) && !t.edgeList[1].leftNode.equals(t.edgeList[0].rightNode)) {
+                        if (!t.edgeList[1].leftNode.equals(t.edgeList[0].leftNode)
+                                && !t.edgeList[1].leftNode.equals(t.edgeList[0].rightNode)) {
                             x3 = t.edgeList[1].leftNode.x;
                             y3 = t.edgeList[1].leftNode.y;
                         } else {
@@ -908,7 +929,8 @@ public class GeomBasics extends Constants {
                 y1 = t.edgeList[0].leftNode.y;
                 x2 = t.edgeList[0].rightNode.x;
                 y2 = t.edgeList[0].rightNode.y;
-                if (!t.edgeList[1].leftNode.equals(t.edgeList[0].leftNode) && !t.edgeList[1].leftNode.equals(t.edgeList[0].rightNode)) {
+                if (!t.edgeList[1].leftNode.equals(t.edgeList[0].leftNode)
+                        && !t.edgeList[1].leftNode.equals(t.edgeList[0].rightNode)) {
                     x3 = t.edgeList[1].leftNode.x;
                     y3 = t.edgeList[1].leftNode.y;
                 } else {
@@ -941,7 +963,8 @@ public class GeomBasics extends Constants {
                         x4 = q.edgeList[right].otherNode(q.edgeList[base].rightNode).x;
                         y4 = q.edgeList[right].otherNode(q.edgeList[base].rightNode).y;
                         try {
-                            out.write(x1 + ", " + y1 + ", " + x2 + ", " + y2 + ", " + x3 + ", " + y3 + ", " + x4 + ", " + y4);
+                            out.write(x1 + ", " + y1 + ", " + x2 + ", " + y2 + ", " + x3 + ", " + y3 + ", " + x4 + ", "
+                                    + y4);
                             out.newLine();
                         } catch (Exception e) {
                             Msg.error("Cannot write quad-mesh data.");
@@ -960,7 +983,8 @@ public class GeomBasics extends Constants {
                     y1 = t.edgeList[0].leftNode.y;
                     x2 = t.edgeList[0].rightNode.x;
                     y2 = t.edgeList[0].rightNode.y;
-                    if (!t.edgeList[1].leftNode.equals(t.edgeList[0].leftNode) && !t.edgeList[1].leftNode.equals(t.edgeList[0].rightNode)) {
+                    if (!t.edgeList[1].leftNode.equals(t.edgeList[0].leftNode)
+                            && !t.edgeList[1].leftNode.equals(t.edgeList[0].rightNode)) {
                         x3 = t.edgeList[1].leftNode.x;
                         y3 = t.edgeList[1].leftNode.y;
                     } else {
@@ -1243,7 +1267,8 @@ public class GeomBasics extends Constants {
         Node n = q.centroid();
         MyVector back2n1 = new MyVector(n, n1), back2n2 = new MyVector(n, n2);
         double startX = n.x, startY = n.y;
-        double xstepn1 = back2n1.x / 50.0, ystepn1 = back2n1.y / 50.0, xstepn2 = back2n2.x / 50.0, ystepn2 = back2n2.y / 50.0;
+        double xstepn1 = back2n1.x / 50.0, ystepn1 = back2n1.y / 50.0, xstepn2 = back2n2.x / 50.0,
+                ystepn2 = back2n2.y / 50.0;
         double xincn1, yincn1, xincn2, yincn2;
         int steps2n1, steps2n2, i;
         List<Element> l1 = n1.adjElements(), l2 = n2.adjElements();

@@ -3,22 +3,22 @@ package org.tim.qmorph.meshing;
 import org.tim.qmorph.geom.Node;
 
 /**
- * This class holds the program "constants". That is, they are given as
- * parameters to the Q-Morph implementation.
+ * 这个类保存程序的"常量"。也就是说，它们作为
+ * Q-Morph实现的参数。
  */
 
 public class Constants {
-    /** A boolean indicating whether the triangle to quad conversion should run. */
+    /** 一个布尔值，表示是否应该运行三角形到四边形的转换。 */
     public static boolean doTri2QuadConversion = true;
-    /** A boolean indicating whether the topological cleanup should run. */
+    /** 一个布尔值，表示是否应该运行拓扑清理。 */
     public static boolean doCleanUp = true;
-    /** A boolean indicating whether the global smoothing should run. */
+    /** 一个布尔值，表示是否应该运行全局平滑。 */
     public static boolean doSmooth = true;
 
-    /* Some common constants */
+    /* 一些常见的常量 */
     public static final double sqrt3x2 = 2.0 * Math.sqrt(3.0);
 
-    // Constants for quads
+    /* 四边形的常量 */
     public static final int base = 0;
     public static final int left = 1;
     public static final int right = 2;
@@ -38,50 +38,50 @@ public class Constants {
     /** 2*PI or 360 degrees */
     public static final double PIx2 = java.lang.Math.PI * 2.0;
 
-    // Some useful constants holding the radian values of common angles in degrees
-    /** 6 degrees in radians */
+    /* 一些有用的常量，保存常见角度的弧度值 */
+    /** 6度对应的弧度 */
     public static final double DEG_6 = Math.toRadians(6);
-    /** 150 degrees in radians */
+    /** 150度对应的弧度 */
     public static final double DEG_150 = Math.toRadians(150);
-    /** 160 degrees in radians */
+    /** 160度对应的弧度 */
     public static final double DEG_160 = Math.toRadians(160);
-    /** 179 degrees in radians */
+    /** 179度对应的弧度 */
     public static final double DEG_179 = Math.toRadians(179);
-    /** 180 degrees in radians */
+    /** 180度对应的弧度 */
     public static final double DEG_180 = Math.toRadians(180);
-    /** 200 degrees in radians */
+    /** 200度对应的弧度 */
     public static final double DEG_200 = Math.toRadians(200);
 
-    // Constants for the seam, transition seam and transition split operations:
-    // Note that we must have (EPSILON1 < EPSILON2)
+    /* 用于接缝、过渡接缝和过渡分割操作的常量 */
+    /* 注意我们必须有(EPSILON1 < EPSILON2) */
     public static double EPSILON1 = java.lang.Math.PI * 0.04;
     public static double EPSILON2 = java.lang.Math.PI * 0.09;
 
-    /** The minimum size of the greatest angle in a chevron. */
+    /* 三角形中最大角的最小大小 */
     public static double CHEVRONMIN = DEG_200;
 
-    // Constants for side edge selection (EPSILON < EPSILONLARGER)
+    /* 用于边选择（EPSILON < EPSILONLARGER）的常量 */
     public static final double sqrt3div2 = Math.sqrt(3.0) / 2.0;
 
     public static final double EPSILON = java.lang.Math.PI / 6.0;
     public static final double EPSILONLARGER = java.lang.Math.PI;
 
-    // Constants for post smoothing
-    /** The node coincidence tolerance */
+    /* 后处理平滑的常量 */
+    /** 节点重合公差 */
     public static double COINCTOL = 0.01;
-    /** A value for the move tolerance. I don't know if it's any good. */
+    /** 移动公差。我不知道它是否有效。 */
     public static double MOVETOLERANCE = 0.01;
-    /** OBS tolerance. Should be 0.1, but may be adjusted to trigger OBS. */
+    /** OBS公差。应该为0.1，但可能调整为触发OBS。 */
     public static double OBSTOL = 0.1;
     public static double DELTAFACTOR = 0.00001;
     public static double MYMIN = 0.05;
-    /** The maximum angle allowed in an element (not given in the paper) */
+    /** 元素中允许的最大角度（未在论文中给出） */
     public static double THETAMAX = Math.toRadians(200);
     public static double TOL = 0.00001;
     public static double GAMMA = 0.8; // 0.8
     public static int MAXITER = 5;
 
-    // And now some doubles to hold the default values of some of the above:
+    /* 现在一些双精度变量来保存上述一些的默认值 */
     public static final double defaultE1Factor = 0.04;
     public static final double defaultE2Factor = 0.09;
     public static final double defaultCHEVRONMIN = DEG_200;
@@ -95,6 +95,6 @@ public class Constants {
     public static final double defaultGAMMA = 0.8; // 0.8
     public static final int defaultMAXITER = 5;
 
-    /** The origin, only used as a reference. */
+    /** 原点，仅用作参考。 */
     public static final Node origin = new Node(0, 0);
 }
