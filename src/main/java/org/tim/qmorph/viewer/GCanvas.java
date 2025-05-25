@@ -17,21 +17,45 @@ import org.tim.qmorph.meshing.GeomBasics;
 import javax.swing.JPanel;
 
 /**
- * The Canvas class which paints the background grid, the nodes, the edges etc.
+ * GCanvas 是主绘图区，负责绘制背景网格、坐标轴、节点、边等网格元素。
+ * 支持缩放、自适应窗口、清空、自动适应等功能。
+ *
+ * <p>
+ * 主要职责：
+ * <ul>
+ * <li>根据 GeomBasics 中的数据绘制网格、节点、边</li>
+ * <li>支持缩放和平移</li>
+ * <li>自适应窗口大小</li>
+ * <li>显示坐标轴和网格线</li>
+ * </ul>
+ * </p>
  */
 
 class GCanvas extends JPanel {
     GUI gui;
 
     double xmin, ymin, xmax, ymax;
+    /** 网格线的增量值，用于控制网格线的间距 */
     int gridIncr;
+    /** 当前画布的缩放比例，用于控制网格、节点和边的显示大小 */
     int scale;
-    int width = 640, height = 480;
-    private DecimalFormat df = new DecimalFormat("0.##"); // 保留两位小数
-
+    /** 画布的默认宽度 */
+    int width = 640;
+    /** 画布的默认高度 */
+    int height = 480;
+    /** 用于格式化坐标值的 DecimalFormat 对象 */
+    private DecimalFormat df = new DecimalFormat("0.##");
+    /** X 轴的像素位置 */
     int xaxis_yval;
+    /** Y 轴的像素位置 */
     int yaxis_xval;
 
+    /**
+     * 构造一个默认范围的 GCanvas。
+     *
+     * @param gui   父 GUI 实例
+     * @param scale 初始缩放比例
+     */
     public GCanvas(GUI gui, int scale) {
         this.gui = gui;
         this.scale = scale;
@@ -95,6 +119,16 @@ class GCanvas extends JPanel {
         updateScalePercentage();
     }
 
+    /**
+     * 构造一个指定范围的 GCanvas。
+     *
+     * @param gui   父 GUI 实例
+     * @param xmin  x 最小值
+     * @param ymin  y 最小值
+     * @param xmax  x 最大值
+     * @param ymax  y 最大值
+     * @param scale 初始缩放比例
+     */
     public GCanvas(GUI gui, double xmin, double ymin, double xmax, double ymax, int scale) {
         this.gui = gui;
         this.xmin = xmin;
@@ -155,7 +189,12 @@ class GCanvas extends JPanel {
         updateScalePercentage();
     }
 
-    /** Returns the sign of the parameter. */
+    /**
+     * 返回参数的符号。
+     * 
+     * @param val 输入值
+     * @return -1（负），0（零），1（正）
+     */
     double signOf(double val) {
         if (val < 0) {
             return -1;
@@ -166,14 +205,29 @@ class GCanvas extends JPanel {
         }
     }
 
+    /**
+     * 获取 Y 轴（竖直轴）在画布上的像素位置。
+     * 
+     * @return Y 轴的 x 坐标（像素）
+     */
     public int getYAxisXPos() {
         return yaxis_xval;
     }
 
+    /**
+     * 获取 X 轴（水平方向）在画布上的像素位置。
+     * 
+     * @return X 轴的 y 坐标（像素）
+     */
     public int getXAxisYPos() {
         return xaxis_yval;
     }
 
+    /**
+     * 设置缩放比例，并自动调整画布大小和网格密度。
+     * 
+     * @param scale 新的缩放比例
+     */
     public void setScale(int scale) {
         this.scale = scale;
         gridIncr = (int) (scale / 1.0);
@@ -203,6 +257,15 @@ class GCanvas extends JPanel {
         repaint();
     }
 
+    /**
+     * 重新设置画布的坐标范围和缩放比例。
+     * 
+     * @param xmin  新的 x 最小值
+     * @param ymin  新的 y 最小值
+     * @param xmax  新的 x 最大值
+     * @param ymax  新的 y 最大值
+     * @param scale 新的缩放比例
+     */
     public void resize(double xmin, double ymin, double xmax, double ymax, int scale) {
         this.scale = scale;
         this.xmin = xmin;
@@ -214,11 +277,18 @@ class GCanvas extends JPanel {
         revalidate();
     }
 
+    /**
+     * 清空画布（触发重绘）。
+     */
     public void clear() {
         repaint();
     }
 
-    // Method for drawing everything
+    /**
+     * 重写 paintComponent，绘制网格、坐标轴、节点和边。
+     * 
+     * @param g Graphics 上下文
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -340,6 +410,9 @@ class GCanvas extends JPanel {
         }
     }
 
+    /**
+     * 根据当前窗口和内容自适应缩放和坐标范围。
+     */
     public void autoFit() {
         // 获取当前窗口大小
         if (getParent() != null) {
@@ -401,7 +474,9 @@ class GCanvas extends JPanel {
         repaint();
     }
 
-    // 添加更新缩放百分比的方法
+    /**
+     * 更新 GUI 控件中的缩放百分比显示。
+     */
     private void updateScalePercentage() {
         if (gui != null && gui.gctrls != null) {
             // 计算缩放百分比
@@ -410,4 +485,17 @@ class GCanvas extends JPanel {
         }
     }
 
+    /**
+     * 将世界坐标x转换为屏幕像素坐标x
+     */
+    public int xToScreen(double x) {
+        return (int) (x * scale + yaxis_xval);
+    }
+
+    /**
+     * 将世界坐标y转换为屏幕像素坐标y
+     */
+    public int yToScreen(double y) {
+        return (int) (-y * scale + xaxis_yval);
+    }
 }

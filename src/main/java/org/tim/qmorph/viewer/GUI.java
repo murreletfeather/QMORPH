@@ -97,7 +97,6 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     JFrame f;
     private GCanvas cvas;
     public GControls gctrls;
-    private JScrollPane sp;
     private JMenuBar mb;
 
     JMenuItem mi;
@@ -292,12 +291,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         cvas.repaint();
 
         f.add("South", gctrls = new GControls(this, cvas));
-        sp = new JScrollPane(cvas);
-        sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        sp.setForeground(Color.darkGray);
-        sp.setBackground(Color.lightGray);
-        f.add("Center", sp);
+        f.add("Center", cvas);
 
         cvas.setForeground(Color.black);
         cvas.setBackground(Color.black);
@@ -780,6 +774,24 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         int nONewEdges = 0;
 
         /**
+         * 查找距离屏幕坐标(x, y)最近且在阈值内的已有节点，若无则返回null。
+         */
+        private Node findNearbyNode(int x, int y, double threshold) {
+            double minDist = Double.MAX_VALUE;
+            Node nearest = null;
+            for (Node node : GeomBasics.nodeList) {
+                int sx = cvas.xToScreen(node.x);
+                int sy = cvas.yToScreen(node.y);
+                double dist = Math.hypot(sx - x, sy - y);
+                if (dist < threshold && dist < minDist) {
+                    minDist = dist;
+                    nearest = node;
+                }
+            }
+            return nearest;
+        }
+
+        /**
          * 鼠标点击事件，处理节点、边、三角形、四边形的创建。
          * 
          * @param e 鼠标事件
@@ -802,20 +814,22 @@ public class GUI extends Constants implements ActionListener, ItemListener {
             lastActionNewQuad = false;
             nONewEdges = 0;
 
-            double x = Math.rint(e.getX() / 10.0) * 10;
-            double y = Math.rint(e.getY() / 10.0) * 10;
-            x = (x - cvas.getYAxisXPos()) / scale;
-            y = (y - cvas.getXAxisYPos()) / -scale;
-            Node n = new Node(x, y);
-            if (!GeomBasics.nodeList.contains(n)) {
+            // 新增：优先查找附近已有节点
+            int clickX = e.getX();
+            int clickY = e.getY();
+            Node n = findNearbyNode(clickX, clickY, 10); // 10像素阈值
+            if (n == null) {
+                double x = Math.rint(clickX / 10.0) * 10;
+                double y = Math.rint(clickY / 10.0) * 10;
+                x = (x - cvas.getYAxisXPos()) / scale;
+                y = (y - cvas.getXAxisYPos()) / -scale;
+                n = new Node(x, y);
                 GeomBasics.nodeList.add(n);
                 lastActionNewNode = true;
                 // 新增：每次添加节点后，更新节点数量显示
                 if (gctrls != null && gctrls.nodesLabel != null) {
                     gctrls.nodesLabel.setText("当前节点数量: " + GeomBasics.nodeList.size());
                 }
-            } else {
-                n = GeomBasics.nodeList.get(GeomBasics.nodeList.indexOf(n));
             }
 
             if (!nodeMode) {
@@ -881,6 +895,10 @@ public class GUI extends Constants implements ActionListener, ItemListener {
                         lastActionNewTriangle = true;
                     }
                     nodeCnt = 0;
+                    // 清空myNodeList数组，防止之前的节点引用被重复使用
+                    for (int i = 0; i < myNodeList.length; i++) {
+                        myNodeList[i] = null;
+                    }
                 } else if (nodeCnt == 3 && quadMode) {
                     if (myNodeList[2] == myNodeList[0] || myNodeList[2] == myNodeList[1]) {
                         nodeCnt = 2;
@@ -959,6 +977,10 @@ public class GUI extends Constants implements ActionListener, ItemListener {
                         lastActionNewQuad = true;
                     }
                     nodeCnt = 0;
+                    // 清空myNodeList数组，防止之前的节点引用被重复使用
+                    for (int i = 0; i < myNodeList.length; i++) {
+                        myNodeList[i] = null;
+                    }
                 }
 
                 if (nodeMode) {
