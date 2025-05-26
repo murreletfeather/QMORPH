@@ -42,6 +42,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.ButtonGroup;
+import javax.swing.JRadioButtonMenuItem;
 
 /**
  * 实现图形用户接口，负责网格的可视化、交互与操作。
@@ -108,13 +110,15 @@ public class GUI extends Constants implements ActionListener, ItemListener {
     JMenuItem newItem, loadMeshItem, loadNodesItem, saveItem, saveAsItem, saveNodesItem, saveNodesAsItem, saveTriAsItem,
             exportItem, exitItem;
     JMenuItem undoItem, clearEdgesItem;
-    JCheckBoxMenuItem nodeModeItem, triModeItem, quadModeItem, debugModeItem, stepModeItem;
+    JRadioButtonMenuItem nodeModeItem, triModeItem, quadModeItem;
+    JCheckBoxMenuItem debugModeItem, stepModeItem;
     JMenuItem consistencyItem, detectInversionItem, printElementsItem, printTrianglesItem, reportMetricsItem,
             printValencesItem, printValPatItem,
             printAngAtSurNodesItem, centroidItem, triCountItem, delauneyItem, qmorphItem, globalCleanUpItem,
             globalSmoothItem, helpItem, aboutItem;
 
     MenuShortcut qkey;
+    ButtonGroup modeGroup;
 
     /**
      * 启动GUI，初始化窗口、菜单、画布等。
@@ -179,19 +183,23 @@ public class GUI extends Constants implements ActionListener, ItemListener {
 
         modeMenu = new JMenu("模式");
 
-        nodeModeItem = new JCheckBoxMenuItem("绘制节点");
-        nodeModeItem.setState(false);
+        nodeModeItem = new JRadioButtonMenuItem("绘制节点");
+        triModeItem = new JRadioButtonMenuItem("构造三角形");
+        quadModeItem = new JRadioButtonMenuItem("构造四边形");
+
+        modeGroup = new ButtonGroup();
+        modeGroup.add(nodeModeItem);
+        modeGroup.add(triModeItem);
+        modeGroup.add(quadModeItem);
+
+        triModeItem.setSelected(true);
+
         nodeModeItem.addItemListener(this);
-        modeMenu.add(nodeModeItem);
-
-        triModeItem = new JCheckBoxMenuItem("构造三角形");
-        triModeItem.setState(true);
         triModeItem.addItemListener(this);
-        modeMenu.add(triModeItem);
-
-        quadModeItem = new JCheckBoxMenuItem("构造四边形");
-        quadModeItem.setState(false);
         quadModeItem.addItemListener(this);
+
+        modeMenu.add(nodeModeItem);
+        modeMenu.add(triModeItem);
         modeMenu.add(quadModeItem);
 
         modeMenu.addSeparator();
@@ -508,9 +516,6 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         nodeMode = true;
         triangleMode = false;
         quadMode = false;
-        nodeModeItem.setState(true);
-        triModeItem.setState(false);
-        quadModeItem.setState(false);
         gctrls.clickStatus.setText("1");
     }
 
@@ -521,9 +526,6 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         nodeMode = false;
         triangleMode = true;
         quadMode = false;
-        nodeModeItem.setState(false);
-        triModeItem.setState(true);
-        quadModeItem.setState(false);
         gctrls.clickStatus.setText("3");
     }
 
@@ -534,9 +536,6 @@ public class GUI extends Constants implements ActionListener, ItemListener {
         nodeMode = false;
         triangleMode = false;
         quadMode = true;
-        nodeModeItem.setState(false);
-        triModeItem.setState(false);
-        quadModeItem.setState(true);
         gctrls.clickStatus.setText("4");
     }
 
@@ -1187,6 +1186,7 @@ public class GUI extends Constants implements ActionListener, ItemListener {
                 lastActionNewEdge = false;
                 lastActionTwoNewEdges = false;
                 lastActionNewTriangle = false;
+                lastActionNewQuad = false;
 
                 cvas.repaint();
             }
